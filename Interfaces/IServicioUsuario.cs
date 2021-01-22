@@ -12,7 +12,7 @@ namespace CoreCRUDwithORACLE.Interfaces
         Usuario GetUsuario(string iCedula);
         Usuario ActualizaUsuario(UsuarioResponse usuarioActualizado);
         Login GetAutenticacionUsuario(string iMail, string iPass);
-        int IngresaUsuario(UsuarioResponse usuario);
+        Task<int> IngresaUsuario(UsuarioResponse usuario);
         Usuario ActualizaClave(Usuario usuarioNew, int estado);
         int EncerarBase();
     }

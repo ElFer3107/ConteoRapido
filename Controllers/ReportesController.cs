@@ -16,6 +16,7 @@ namespace CoreCRUDwithORACLE.Controllers
     {
         private readonly IServicioReportes servicioReportes;
         private readonly ApplicationUser applicationUser;
+        private static Auxiliar _helper = new Auxiliar();
 
         //// GET: ReportesController
         //public ActionResult Index()
@@ -165,14 +166,14 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = operadoresProvincias.Count();
 
             return View(await PaginatedListAsync<AOperadoresProvincia>.CreateAsync(operadoresProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(operadoresProvincias);
         }
 
-        [Route("Reportes/OperadoresCanton/{codProvincia}")]
-        public async Task<IActionResult> OperadoresCanton(int codProvincia, string sortOrder, string currentFilter,
+        [Route("Reportes/OperadoresCanton/'{codProvincia}'")]
+        public async Task<IActionResult> OperadoresCanton(string codProvincia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -199,10 +200,13 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codProvincia == 0)
+            //_helper = new Auxiliar();
+            int iCodProvincia = Convert.ToInt32(_helper.DesencriptarClave(codProvincia));
+
+            if (iCodProvincia == 0)
                 operadoresCanton = await servicioReportes.OperadoresCanton();
             else
-                operadoresCanton = await servicioReportes.OperadoresCanton(codProvincia);
+                operadoresCanton = await servicioReportes.OperadoresCanton(iCodProvincia);
 
             if ((operadoresCanton == null) || (operadoresCanton.Count() == 0))
             {
@@ -239,15 +243,15 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = operadoresCanton.Count();
 
             return View(await PaginatedListAsync<AOperadoresCanton>.CreateAsync(operadoresCanton.AsQueryable(), pageNumber ?? 1, pageSize));
 
             //return View(operadoresCanton);
         }
 
-        [Route("Reportes/OperadoresParroquia/{codCanton}")]
-        public async Task<IActionResult> OperadoresParroquia(int codCanton, string sortOrder, string currentFilter,
+        [Route("Reportes/OperadoresParroquia/'{codCanton}'")]
+        public async Task<IActionResult> OperadoresParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -276,10 +280,11 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codCanton == 0)
+            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
+            if (iCodCanton == 0)
                 operadoresParroquia = await servicioReportes.OperadoresParroquia();
             else
-                operadoresParroquia = await servicioReportes.OperadoresParroquia(codCanton);
+                operadoresParroquia = await servicioReportes.OperadoresParroquia(iCodCanton);
 
             if ((operadoresParroquia == null) || (operadoresParroquia.Count() == 0))
             {
@@ -323,14 +328,14 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = operadoresParroquia.Count();
 
             return View(await PaginatedListAsync<AOperadoresParroquia>.CreateAsync(operadoresParroquia.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(operadoresParroquia);
         }
 
-        [Route("Reportes/DetalleOperadores/{codParroquia}")]
-        public async Task<IActionResult> DetalleOperadores(int codParroquia, string sortOrder, string currentFilter,
+        [Route("Reportes/DetalleOperadores/'{codParroquia}'")]
+        public async Task<IActionResult> DetalleOperadores(string codParroquia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -358,10 +363,11 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codParroquia == 0)
+            int iCodParroquia = Convert.ToInt32(_helper.DesencriptarClave(codParroquia));
+            if (iCodParroquia == 0)
                 operadoresDetalle = await servicioReportes.OperadoresDetalle();
             else
-                operadoresDetalle = await servicioReportes.OperadoresDetalle(codParroquia);
+                operadoresDetalle = await servicioReportes.OperadoresDetalle(iCodParroquia);
 
             if ((operadoresDetalle == null) || (operadoresDetalle.Count() == 0))
             {
@@ -406,7 +412,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = operadoresDetalle.Count();
 
             return View(await PaginatedListAsync<DetalleOperadores>.CreateAsync(operadoresDetalle.AsQueryable(), pageNumber ?? 1, pageSize));
             
@@ -483,13 +489,13 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = transmitidasProvincias.Count();
 
             return View(await PaginatedListAsync<ATransmitidasProvincia>.CreateAsync(transmitidasProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasProvincias);
         }
-        [Route("Reportes/TransmitidasCanton/{codProvincia}")]
-        public async Task<IActionResult> TransmitidasCanton(int codProvincia, string sortOrder, string currentFilter,
+        [Route("Reportes/TransmitidasCanton/'{codProvincia}'")]
+        public async Task<IActionResult> TransmitidasCanton(string codProvincia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -514,13 +520,13 @@ namespace CoreCRUDwithORACLE.Controllers
             ViewData["CurrentFilter"] = textoBuscar;
 
             IEnumerable<ATransmitidasCanton> transmitidasCanton = null;
-
+            int iCodProvincia = Convert.ToInt32(_helper.DesencriptarClave(codProvincia));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codProvincia == 0)
+            if (iCodProvincia == 0)
                 transmitidasCanton = await servicioReportes.TransmitidasCanton();
             else
-                transmitidasCanton = await servicioReportes.TransmitidasCanton(codProvincia);
+                transmitidasCanton = await servicioReportes.TransmitidasCanton(iCodProvincia);
 
             if ((transmitidasCanton == null) || (transmitidasCanton.Count() == 0))
             {
@@ -557,13 +563,13 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = transmitidasCanton.Count();
 
             return View(await PaginatedListAsync<ATransmitidasCanton>.CreateAsync(transmitidasCanton.AsQueryable(), pageNumber ?? 1, pageSize));
 
         }
-        [Route("Reportes/TransmitidasParroquia/{codCanton}")]
-        public async Task<IActionResult> TransmitidasParroquia(int codCanton, string sortOrder, string currentFilter,
+        [Route("Reportes/TransmitidasParroquia/'{codCanton}'")]
+        public async Task<IActionResult> TransmitidasParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -588,14 +594,15 @@ namespace CoreCRUDwithORACLE.Controllers
 
             ViewData["CurrentFilter"] = textoBuscar;
 
+            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
             IEnumerable<ATransmitidasParroquias> transmitidasParroquia = null;
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codCanton == 0)
+            if (iCodCanton == 0)
                 transmitidasParroquia = await servicioReportes.TransmitidasParroquia();
             else
-                transmitidasParroquia = await servicioReportes.TransmitidasParroquia(codCanton);
+                transmitidasParroquia = await servicioReportes.TransmitidasParroquia(iCodCanton);
 
             if ((transmitidasParroquia == null) || (transmitidasParroquia.Count() == 0))
             {
@@ -639,13 +646,13 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = transmitidasParroquia.Count();
 
             return View(await PaginatedListAsync<ATransmitidasParroquias>.CreateAsync(transmitidasParroquia.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasParroquia);
         }
-        [Route("Reportes/TransmitidasDetalle/{codParroquia}")]
-        public async Task<IActionResult> TransmitidasDetalle(int codParroquia, string sortOrder, string currentFilter,
+        [Route("Reportes/TransmitidasDetalle/'{codParroquia}'")]
+        public async Task<IActionResult> TransmitidasDetalle(string codParroquia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -669,15 +676,15 @@ namespace CoreCRUDwithORACLE.Controllers
             }
 
             ViewData["CurrentFilter"] = textoBuscar;
-
+            int iCodParroquia = Convert.ToInt32(_helper.DesencriptarClave(codParroquia));
             IEnumerable<DetallesTransmitidas> transmitidasParroquia = null;
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codParroquia == 0)
+            if (iCodParroquia == 0)
                 transmitidasParroquia = await servicioReportes.TransmitidasDetalle();
             else
-                transmitidasParroquia = await servicioReportes.TransmitidasDetalle(codParroquia);
+                transmitidasParroquia = await servicioReportes.TransmitidasDetalle(iCodParroquia);
 
             if ((transmitidasParroquia == null) || (transmitidasParroquia.Count() == 0))
             {
@@ -722,7 +729,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = transmitidasParroquia.Count();
 
             return View(await PaginatedListAsync<DetallesTransmitidas>.CreateAsync(transmitidasParroquia.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasParroquia);
@@ -794,13 +801,13 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = generalProvincias.Count();
 
             return View(await PaginatedListAsync<InformacionGeneral>.CreateAsync(generalProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
             
         }
-        [Route("Reportes/GeneralCanton/{codigoProvincia}")]
-        public async Task<IActionResult> GeneralCanton(int codigoProvincia, string sortOrder, string currentFilter,
+        [Route("Reportes/GeneralCanton/'{codigoProvincia}'")]
+        public async Task<IActionResult> GeneralCanton(string codigoProvincia, string sortOrder, string currentFilter,
                                                string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -823,15 +830,15 @@ namespace CoreCRUDwithORACLE.Controllers
             }
 
             ViewData["CurrentFilter"] = textoBuscar;
-
+            int ICodigoProvincia = Convert.ToInt32(_helper.DesencriptarClave(codigoProvincia));
             IEnumerable<InformacionGeneral> generalesCanton = null;
 
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codigoProvincia == 0)
+            if (ICodigoProvincia == 0)
                 generalesCanton = await servicioReportes.GeneralCanton();
             else
-                generalesCanton = await servicioReportes.GeneralCanton(codigoProvincia);
+                generalesCanton = await servicioReportes.GeneralCanton(ICodigoProvincia);
 
             if ((generalesCanton == null) || (generalesCanton.Count() == 0))
             {
@@ -868,13 +875,13 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = generalesCanton.Count();
 
             return View(await PaginatedListAsync<InformacionGeneral>.CreateAsync(generalesCanton.AsQueryable(), pageNumber ?? 1, pageSize));
 
         }
-        [Route("Reportes/GeneralesParroquia/{codCanton}")]
-        public async Task<IActionResult> GeneralesParroquia(int codCanton, string sortOrder, string currentFilter,
+        [Route("Reportes/GeneralesParroquia/'{codCanton}'")]
+        public async Task<IActionResult> GeneralesParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
             if (!User.Identity.IsAuthenticated)
@@ -904,10 +911,11 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            if (codCanton == 0)
+            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
+            if (iCodCanton == 0)
                 generalesParroquia = await servicioReportes.GeneralParroquia();
             else
-                generalesParroquia = await servicioReportes.GeneralParroquia(codCanton);
+                generalesParroquia = await servicioReportes.GeneralParroquia(iCodCanton);
 
             if ((generalesParroquia == null) || (generalesParroquia.Count() == 0))
             {
@@ -958,7 +966,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
             }
 
-            int pageSize = 10;
+            int pageSize = generalesParroquia.Count();
 
             return View(await PaginatedListAsync<InformacionGeneral>.CreateAsync(generalesParroquia.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasParroquia);

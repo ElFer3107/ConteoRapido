@@ -76,9 +76,10 @@ namespace CoreCRUDwithORACLE.Servicios
                                         delete from asistencia ;
                                         update  resultados set  fin_resultado=0, cod_vervotos = '';";
 
-        public ServicioUsuario(IConfiguration _configuration)
+        public ServicioUsuario(IConfiguration _configuration, ILoggerFactory logger)
         {
             _conn = _configuration.GetConnectionString("OracleDBConnection");
+            _logger = logger.CreateLogger<ServicioUsuario>();
         }
 
         public IEnumerable<Usuario> GetUsuarios(int codigoRol, int codigoProvincia)
@@ -129,6 +130,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 Usuario usuario = new Usuario
                                 {
+                                    SEGURO = _helper.EncriptarClave(Convert.ToString(odr["CEDULA"])),
                                     CEDULA = Convert.ToString(odr["CEDULA"]),
                                     COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
                                     PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
@@ -385,9 +387,10 @@ namespace CoreCRUDwithORACLE.Servicios
             return usuario;
         }
 
-        public int IngresaUsuario(UsuarioResponse usuario)
+        public async Task<int> IngresaUsuario(UsuarioResponse usuario)
         {
             int respuesta = 0;
+            //_logger = new ILogger();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -410,13 +413,14 @@ namespace CoreCRUDwithORACLE.Servicios
                                                 _helper.EncodePassword(usuario.CLAVE), usuario.CEDULA.Substring(0,9), usuario.CEDULA.Substring(9, 1),
                                                 usuario.NOMBRE, usuario.MAIL, usuario.ESTADO?"1":"0", usuario.CODIGO_PROVINCIA, usuario.TELEFONO);
 
-                        respuesta = cmd.ExecuteNonQuery();
+                        respuesta = await cmd.ExecuteNonQueryAsync();
                         return respuesta;
 
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation(ex.Message);
+                        
+                        _logger.LogWarning("Error: " + ex.Message);
                         return respuesta;
                         //throw ex;
                     }

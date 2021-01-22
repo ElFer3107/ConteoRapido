@@ -24,6 +24,7 @@
                     {
                         <div class="card">
                             <div class="card-header">
+                                <!--
                                 <form asp-action="TransmitidasDetalle" method="get">
                                     <div class="form-actions no-color">
                                         <p>
@@ -33,6 +34,7 @@
                                         </p>
                                     </div>
                                 </form>
+                                -->
                                 <div asp-validation-summary="All" class="text-danger"></div>
 
                             </div>
@@ -125,10 +127,10 @@
                                                         @Html.CheckBoxFor(modelItem => item.TRANSMITIDAS, new { @disabled = "disabled" })
                                                     </td>
                                                     @*<td>
-                                                            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                                                            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                                                            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                                                        </td>*@
+                            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                        </td>*@
                                                 </tr>
                                             }
                                         </tbody>
@@ -137,20 +139,22 @@
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                                         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                                     }
-                                    <a asp-action="TransmitidasDetalle"
-                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                                       asp-route-pageNumber="@(Model.PageIndex - 1)"
-                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                                       class="btn btn-default @prevDisabled">
-                                        Anterior
-                                    </a>
-                                    <a asp-action="TransmitidasDetalle"
-                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                                       asp-route-pageNumber="@(Model.PageIndex + 1)"
-                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                                       class="btn btn-default @nextDisabled">
-                                        Siguiente
-                                    </a>
+                                    <!--
+    <a asp-action="TransmitidasDetalle"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @prevDisabled">
+        Anterior
+    </a>
+    <a asp-action="TransmitidasDetalle"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @nextDisabled">
+        Siguiente
+    </a>
+    -->
                                 </div>
                             </div>
                         </div>
@@ -160,3 +164,38 @@
         </div>
     </section>
 </div>
+
+
+<!-- jQuery -->
+<script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables -->
+<script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/FrontEnd/dist/js/demo.js"></script>
+<!-- page script -->
+
+<script>
+    $(function () {
+        $("#TransDetalle").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#TransDetalle').DataTable();
+    });</script>
+
+

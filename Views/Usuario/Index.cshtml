@@ -118,9 +118,9 @@
                                                 <td>
                                                     @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value != "5")
                                                     {
-                                                        @Html.ActionLink("Editar", "Edit", new { id = item.CEDULA }, new { @class = "btn btn-block btn-info" })
+                                                        @Html.ActionLink("Editar", "Edit", new { id = item.SEGURO }, new { @class = "btn btn-block btn-info" })
                                                     }
-                                                    @Html.ActionLink("Resetear", "ActualizaClave", new { cedula = item.CEDULA }, new { @class = "btn btn-block btn-warning" })
+                                                    @Html.ActionLink("Resetear", "ActualizaClave", new { cedula = item.SEGURO }, new { @class = "btn btn-block btn-warning" })
 
                                                 </td>
                                             </tr>

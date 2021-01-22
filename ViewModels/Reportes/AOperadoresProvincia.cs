@@ -13,5 +13,6 @@ namespace CoreCRUDwithORACLE.ViewModels.Reportes
         public string PROVINCIA { get; set; }
         public int JUNTAS { get; set; }
         public int OPERADORES { get; set; }
+        public string SEGUROP { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +19,14 @@ namespace CoreCRUDwithORACLE.Controllers
         IServicioUsuario servicioUsuario;
         private static Auxiliar auxiliar;
         private readonly ApplicationUser auc;
+        private readonly ILogger _logger;
         private string mensaje = string.Empty;
 
-        public UsuarioController(IServicioUsuario _servicioUsuario, ApplicationUser auc)
+        public UsuarioController(IServicioUsuario _servicioUsuario, ApplicationUser auc, ILoggerFactory logger)
         {
             servicioUsuario = _servicioUsuario;
             this.auc = auc;
+            _logger = logger.CreateLogger(typeof(UsuarioController));
         }
         public IActionResult Create()
         {
@@ -51,7 +54,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(usuarios);
 
         }
-
+        //[Route("Usuario/Edit/'{id}'")]
         public ActionResult Edit(string id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -66,7 +69,10 @@ namespace CoreCRUDwithORACLE.Controllers
             int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
             int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
 
-            Usuario usuario = servicioUsuario.GetUsuario(id);
+            auxiliar = new Auxiliar();
+            var cedula = auxiliar.DesencriptarClave(id);
+            Usuario usuario = servicioUsuario.GetUsuario(cedula);
+            //Usuario usuario = servicioUsuario.GetUsuario(id);
 
             if (usuario == null)
             {
@@ -110,7 +116,6 @@ namespace CoreCRUDwithORACLE.Controllers
 
             return View(usuarioViewModel);
         }
-
         [HttpPost]
         public ActionResult Edit(UsuarioViewModel usuarioMod)
         {
@@ -220,7 +225,7 @@ namespace CoreCRUDwithORACLE.Controllers
             {
                 case 1:
                     var provincias = (from Provincia in auc.PROVINCIA
-                                      where Provincia.COD_PROVINCIA == -1
+                                      where Provincia.COD_PROVINCIA == 0
                                       orderby Provincia.NOM_PROVINCIA
                                       select new SelectListItem()
                                       {
@@ -305,7 +310,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(usuarioViewModel);
         }
         [HttpPost]
-        public ActionResult IngresaUsuario(UsuarioViewModel usuarionNew)
+        public async Task<IActionResult> IngresaUsuario(UsuarioViewModel usuarionNew)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
@@ -324,7 +329,7 @@ namespace CoreCRUDwithORACLE.Controllers
             {
                 case 1:
                     var provincias = (from Provincia in auc.PROVINCIA
-                                      where Provincia.COD_PROVINCIA == -1
+                                      where Provincia.COD_PROVINCIA == 0
                                       orderby Provincia.NOM_PROVINCIA
                                       select new SelectListItem()
                                       {
@@ -437,9 +442,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ROL = usuarionNew.ROL
             };
 
-            int respuesta = servicioUsuario.IngresaUsuario(usuario);
+            int respuesta = await servicioUsuario.IngresaUsuario(usuario);
             if (respuesta > 0)
             {
+                var nombreUsuario = User.Claims.FirstOrDefault(x => x.Type == "Id").Value;
+                _logger.LogInformation("Usuario:" + nombreUsuario + " Ingresa: " + usuario.CEDULA);
+                //ModelState.
                 ViewBag.Message = "Usuario ingresado exitosamente!";
                 return RedirectToAction(nameof(Index));
             }
@@ -449,7 +457,7 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(usuarionNew);
             }
         }
-        [Route("Usuario/ActualizaClave/{cedula}")]
+        [Route("Usuario/ActualizaClave/'{cedula}'")]
         public ActionResult ActualizaClave(string cedula)
         {
             if (!User.Identity.IsAuthenticated)
@@ -461,7 +469,10 @@ namespace CoreCRUDwithORACLE.Controllers
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
 
-            Usuario usuario = servicioUsuario.GetUsuario(cedula);
+            auxiliar = new Auxiliar();
+            var id = auxiliar.DesencriptarClave(cedula);
+
+            Usuario usuario = servicioUsuario.GetUsuario(id);
 
             if (usuario == null)
                 return RedirectToAction("Logout", "Account");
@@ -469,7 +480,7 @@ namespace CoreCRUDwithORACLE.Controllers
             usuario.CLAVE = string.Empty;
             return View(usuario);
         }
-        [Route("Usuario/ActualizaClave/{cedula}")]
+        [Route("Usuario/ActualizaClave/'{cedula}'")]
         [HttpPost]
         public ActionResult ActualizaClave(Usuario usuarioNew)
         {
@@ -480,10 +491,10 @@ namespace CoreCRUDwithORACLE.Controllers
                 return RedirectToAction("Logout", "Account");
 
             //string codRol = usuarioNew.
+            string id = usuarioNew.CEDULA;
+            usuarioNew.CEDULA = auxiliar.DesencriptarClave(id);
 
             Usuario usuario = null;
-
-
 
             usuario = servicioUsuario.ActualizaClave(usuarioNew, 0);
 
@@ -498,7 +509,7 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(usuarioNew);
             }
         }
-        [Route("Usuario/AltaClave/{cedula}")]
+        [Route("Usuario/AltaClave/'{cedula}'")]
         public ActionResult AltaClave(string cedula)
         {
             if (!User.Identity.IsAuthenticated)
@@ -510,7 +521,11 @@ namespace CoreCRUDwithORACLE.Controllers
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
 
-            Usuario usuario = servicioUsuario.GetUsuario(cedula);
+            auxiliar = new Auxiliar();
+
+            string id = auxiliar.DesencriptarClave(cedula);
+
+            Usuario usuario = servicioUsuario.GetUsuario(id);
 
             if (usuario == null)
                 return RedirectToAction("Logout", "Account");
@@ -519,7 +534,7 @@ namespace CoreCRUDwithORACLE.Controllers
             usuario.CLAVE = string.Empty;
             return View(usuario);
         }
-        [Route("Usuario/AltaClave/{cedula}")]
+        [Route("Usuario/AltaClave/'{cedula}'")]
         [HttpPost]
         public ActionResult AltaClave(Usuario usuarioAlta)
         {
@@ -530,6 +545,9 @@ namespace CoreCRUDwithORACLE.Controllers
                 return RedirectToAction("Logout", "Account");
 
             Usuario usuario = null;
+            string id = usuarioAlta.CEDULA;
+            auxiliar = new Auxiliar();
+            usuarioAlta.CEDULA = auxiliar.DesencriptarClave(id);
 
             usuario = servicioUsuario.ActualizaClave(usuarioAlta, 1);
 

@@ -1,4 +1,5 @@
-﻿using CoreCRUDwithORACLE.Interfaces;
+﻿using CoreCRUDwithORACLE.Comunes;
+using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.Models;
 using CoreCRUDwithORACLE.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -18,6 +19,7 @@ namespace CoreCRUDwithORACLE.Controllers
     public class AccountController : Controller
     {
         private readonly IServicioUsuario usuarioManager;
+        private static Auxiliar _helper;
 
         //private readonly UserManager<IdentityUser> userManager;
         //private readonly SignInManager<IdentityUser> signInManager;
@@ -67,8 +69,9 @@ namespace CoreCRUDwithORACLE.Controllers
         [HttpGet]
         public async Task<IActionResult> Login()
         {
-            await HttpContext.SignOutAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme);
+            if (User.Identity.IsAuthenticated)
+                await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
 
@@ -89,6 +92,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     {
                         new Claim(ClaimTypes.Name, result.NOMBRE),
                         new Claim("CodRol", result.COD_ROL.ToString()),
+                        new Claim("Id", result.CEDULA.ToString()),
                         new Claim(ClaimTypes.Role, "Administrator"),
                     };
 
@@ -127,10 +131,12 @@ namespace CoreCRUDwithORACLE.Controllers
                     HttpContext.Session.SetString("cod_rol", result.COD_ROL.ToString());
                     ViewBag.CODROL = result.COD_ROL;
 
+                    _helper = new Auxiliar();
+
                     if (result.EST_CLAVE == 0)
                     {
                         return RedirectToAction("AltaClave", new RouteValueDictionary(
-                                                        new { controller = "Usuario", action = "AltaClave", cedula = result.CEDULA }));
+                                                        new { controller = "Usuario", action = "AltaClave", cedula = _helper.EncriptarClave(result.CEDULA) }));
                     }
 
                     //var resultado = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
@@ -156,6 +162,7 @@ namespace CoreCRUDwithORACLE.Controllers
         {
             //await signInManager.SignOutAsync();
             HttpContext.Session.SetString("cod_rol", "");
+
             await HttpContext.SignOutAsync(
             CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Account");

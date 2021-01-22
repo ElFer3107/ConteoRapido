@@ -1,4 +1,5 @@
-﻿using CoreCRUDwithORACLE.Interfaces;
+﻿using CoreCRUDwithORACLE.Comunes;
+using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.ViewModels.Reportes;
 using Microsoft.Extensions.Configuration;
 using Oracle.ManagedDataAccess.Client;
@@ -13,6 +14,7 @@ namespace CoreCRUDwithORACLE.Servicios
     public class ServicioReportes : IServicioReportes
     {
         private readonly string _conn;
+        private static Auxiliar _helper;
 
         public ServicioReportes(IConfiguration _configuration)
         {
@@ -36,6 +38,8 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<AOperadoresProvincia>> OperadoresProvincia(int? codigoProvincia = null)
         {
             List<AOperadoresProvincia> operadoresProv = null;
+
+            _helper = new Auxiliar();
 
             using (OracleConnection con = new OracleConnection(_conn))
             {
@@ -66,7 +70,8 @@ namespace CoreCRUDwithORACLE.Servicios
                                     COD_PROV = Convert.ToInt32(odr["CODIGO"]),
                                     PROVINCIA = Convert.ToString(odr["PROVINCIA"]),
                                     JUNTAS = Convert.ToInt32(odr["JUNTAS"]),
-                                    OPERADORES = Convert.ToInt32(odr["OPERADORES"])
+                                    OPERADORES = Convert.ToInt32(odr["OPERADORES"]),
+                                    SEGUROP = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString())
                                 };
                                 operadoresProv.Add(operadorProvincia);
                             }
@@ -92,6 +97,7 @@ namespace CoreCRUDwithORACLE.Servicios
         {
             List<AOperadoresCanton> operadoresCanton = null;
 
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -122,6 +128,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                     CANTON = Convert.ToString(odr["CANTONES"]),
                                     operadoresProvincia = new AOperadoresProvincia()
                                     {
+                                        SEGUROP = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString()),
                                         COD_PROV = Convert.ToInt32(odr["CPROVINCIA"]),
                                         PROVINCIA = Convert.ToString(odr["PROVINCIAS"]),
                                         JUNTAS = Convert.ToInt32(odr["JUNTAS"]),
@@ -152,6 +159,7 @@ namespace CoreCRUDwithORACLE.Servicios
         {
             List<AOperadoresParroquia> operadoresParroquias = null;
 
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -186,6 +194,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                         CANTON = Convert.ToString(odr["CANTON"]),
                                         operadoresProvincia = new AOperadoresProvincia()
                                         {
+                                            SEGUROP = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString()),
                                             PROVINCIA = Convert.ToString(odr["PROVINCIA"]),
                                             JUNTAS = Convert.ToInt32(odr["JUNTAS"]),
                                             OPERADORES = Convert.ToInt32(odr["OPERADORES"])
@@ -274,7 +283,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<ATransmitidasProvincia>> TransmitidasProvincia(int? codigoProvincia = null)
         {
             List<ATransmitidasProvincia> transmitidasProvincia = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -301,6 +310,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 ATransmitidasProvincia tProvincia = new ATransmitidasProvincia
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString()),
                                     CODIGO = Convert.ToInt32(odr["CODIGO"]),
                                     PROVINCIA = Convert.ToString(odr["PROVINCIA"]),
                                     JUNTAS = Convert.ToInt32(odr["JUNTAS"]),
@@ -329,7 +339,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<ATransmitidasCanton>> TransmitidasCanton(int? codigoProvincia = null)
         {
             List<ATransmitidasCanton> transmitidasCanton = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -356,6 +366,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 ATransmitidasCanton tCanton = new ATransmitidasCanton
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString()),
                                     CODIGO_PROVINCIA = Convert.ToInt32(odr["CODIGO_PROVINCIA"]),
                                     CODIGO = Convert.ToInt32(odr["CODIGO"]),
                                     PROVINCIA = Convert.ToString(odr["PROVINCIA"]),
@@ -386,7 +397,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<ATransmitidasParroquias>> TransmitidasParroquia(int? codigoCanton = null)
         {
             List<ATransmitidasParroquias> transmitidasParroquia = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -413,6 +424,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 ATransmitidasParroquias tParroquia = new ATransmitidasParroquias
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["CODIGO"]).ToString()),
                                     CCANTON = Convert.ToInt32(odr["CCANTON"]),
                                     PARROQUIA = Convert.ToString(odr["NOM_PARROQUIA"]),
                                     CODIGO = Convert.ToInt32(odr["CODIGO"]),
@@ -506,7 +518,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<InformacionGeneral>> GeneralProvincia(int? codigoProvincia = null)
         {
             List<InformacionGeneral> generalProv = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -536,6 +548,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 InformacionGeneral generalProvincia = new InformacionGeneral
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["COD_PROVINCIA"]).ToString()),
                                     COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
                                     NOM_PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
                                     JUNTAS = Convert.ToInt32(odr["JUNTAS"]),
@@ -567,7 +580,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<InformacionGeneral>> GeneralCanton(int? codigoProvincia = null)
         {
             List<InformacionGeneral> generalesCanton = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -597,6 +610,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 InformacionGeneral generalCanton = new InformacionGeneral
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["COD_CANTON"]).ToString()),
                                     COD_CANTON = Convert.ToInt32(odr["COD_CANTON"]),
                                     NOM_CANTON = Convert.ToString(odr["NOM_CANTON"]),
                                     COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
@@ -630,7 +644,7 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<IEnumerable<InformacionGeneral>> GeneralParroquia(int? codigoCanton = null)
         {
             List<InformacionGeneral> generalesParroquia = null;
-
+            _helper = new Auxiliar();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -661,6 +675,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 InformacionGeneral generalParroquia = new InformacionGeneral
                                 {
+                                    SEGUROCOD = _helper.EncriptarClave(Convert.ToInt32(odr["COD_PARROQUIA"]).ToString()),
                                     COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
                                     NOM_PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
                                     COD_CANTON = Convert.ToInt32(odr["COD_CANTON"]),

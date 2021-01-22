@@ -24,6 +24,7 @@
                     {
                         <div class="card">
                             <div class="card-header">
+                                <!--
                                 <form asp-action="TransmitidasCanton" method="get">
                                     <div class="form-actions no-color">
                                         <p>
@@ -33,9 +34,14 @@
                                         </p>
                                     </div>
                                 </form>
+                                -->
                                 <div asp-validation-summary="All" class="text-danger"></div>
 
                             </div>
+                            @{
+                                var juntas = 0;
+                                var transmitidas = 0;
+                            }
                             <div class="card-body">
                                 <div class="form-group">
                                     <table id="TransCanton" class="table table-bordered table-striped">
@@ -91,16 +97,30 @@
                                                         @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
                                                     </td>
                                                     <td>
-                                                        @Html.ActionLink("Parroquias", "TransmitidasParroquia", new { codCanton = item.CODIGO }, new { @class = "btn btn-block btn-info" })
+                                                        @Html.ActionLink("Parroquias", "TransmitidasParroquia", new { codCanton = item.SEGUROCOD }, new { @class = "btn btn-block btn-info" })
                                                     </td>
                                                 </tr>
+                                                juntas = juntas + item.JUNTAS;
+                                                transmitidas = transmitidas + item.TRANSMITIDAS;
                                             }
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>TOTAL</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th>@juntas</th>
+                                                <th>@transmitidas</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                     @{
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                                         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                                     }
+                                    <!--
                                     <a asp-action="TransmitidasCanton"
                                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                                        asp-route-pageNumber="@(Model.PageIndex - 1)"
@@ -115,6 +135,7 @@
                                        class="btn btn-default @nextDisabled">
                                         Siguiente
                                     </a>
+                                    -->
                                 </div>
                             </div>
                         </div>
@@ -124,7 +145,38 @@
         </div>
     </section>
 </div>
-@*<div>
-    <a asp-controller="Home" asp-action="Index">Regresar al Inicio | </a>
-    <a asp-controller="Account" asp-action="Logout">Salir</a>
-</div>*@
+
+
+<!-- jQuery -->
+<script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables -->
+<script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/FrontEnd/dist/js/demo.js"></script>
+<!-- page script -->
+
+
+<script>
+    $(function () {
+        $("#TransCanton").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#TransCanton').DataTable();
+    });</script>
+

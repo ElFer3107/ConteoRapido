@@ -24,6 +24,7 @@
                     {
                         <div class="card">
                             <div class="card-header">
+                                <!--
                                 <form asp-action="GeneralCanton" method="get">
                                     <div class="form-actions no-color">
                                         <p>
@@ -33,9 +34,18 @@
                                         </p>
                                     </div>
                                 </form>
+                                -->
                                 <div asp-validation-summary="All" class="text-danger"></div>
 
                             </div>
+                            @{
+                                var juntas = 0;
+                                var transmitidas = 0;
+                                var descargadas = 0;
+                                var asignadas = 0;
+                                var asistencia = 0;
+
+                            }
                             <div class="card-body">
                                 <div class="form-group">
                                     <table id="GralCanton" class="table table-bordered table-striped">
@@ -106,16 +116,37 @@
                                                         @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
                                                     </td>
                                                     <td>
-                                                        @Html.ActionLink("Parroquia", "GeneralesParroquia", new { codCanton = item.COD_CANTON }, new { @class = "btn btn-block btn-info" })
+                                                        @Html.ActionLink("Parroquia", "GeneralesParroquia", new { codCanton = item.SEGUROCOD }, new { @class = "btn btn-block btn-info" })
                                                     </td>
                                                 </tr>
+                                                juntas = juntas + item.JUNTAS;
+                                                asignadas = asignadas + item.ASIGNADAS;
+                                                descargadas = descargadas + item.DESCARGADAS;
+                                                asistencia = asistencia + item.REPORTADAS;
+                                                transmitidas = transmitidas + item.TRANSMITIDAS;
+
                                             }
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>TOTAL</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th> </th>
+                                                <th>@juntas</th>
+                                                <th>@asignadas</th>
+                                                <th>@descargadas </th>
+                                                <th>@asistencia</th>
+                                                <th>@transmitidas</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                     @{
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                                         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                                     }
+                                    <!--
                                     <a asp-action="GeneralCanton"
                                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                                        asp-route-pageNumber="@(Model.PageIndex - 1)"
@@ -130,6 +161,7 @@
                                        class="btn btn-default @nextDisabled">
                                         Siguiente
                                     </a>
+                                    -->
                                 </div>
                             </div>
                         </div>
@@ -139,3 +171,38 @@
         </div>
     </section>
 </div>
+
+
+
+<!-- jQuery -->
+<script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables -->
+<script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/FrontEnd/dist/js/demo.js"></script>
+<!-- page script -->
+
+<script>
+    $(function () {
+        $("#GralCanton").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#GralCanton').DataTable();
+    });</script>
+

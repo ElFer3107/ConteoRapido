@@ -24,6 +24,7 @@
                     {
                         <div class="card">
                             <div class="card-header">
+                                <!--
                                 <form asp-action="OperadoresParroquia" method="get">
                                     <div class="form-actions no-color">
                                         <p>
@@ -33,9 +34,14 @@
                                         </p>
                                     </div>
                                 </form>
+                                -->
                                 <div asp-validation-summary="All" class="text-danger"></div>
 
                             </div>
+                            @{
+                                var juntas = 0;
+                                var operadores = 0;
+                            }
                             <div class="card-body">
                                 <div class="form-group">
                                     <table id="RepParrOper" class="table table-bordered table-striped">
@@ -91,16 +97,34 @@
                                                         @Html.DisplayFor(modelItem => item.operadoresCanton.operadoresProvincia.OPERADORES)
                                                     </td>
                                                     <td>
-                                                        @Html.ActionLink("Detalle", "DetalleOperadores", new { codParroquia = item.PCODIGO }, new { @class = "btn btn-block btn-info" })
+                                                        @Html.ActionLink("Detalle", "DetalleOperadores", new { codParroquia = item.operadoresCanton.operadoresProvincia.SEGUROP }, new { @class = "btn btn-block btn-info" })
                                                     </td>
                                                 </tr>
+                                                juntas = juntas + item.operadoresCanton.operadoresProvincia.JUNTAS;
+                                                operadores = operadores + item.operadoresCanton.operadoresProvincia.OPERADORES;
                                             }
                                         </tbody>
+
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    TOTAL
+                                                </th>
+                                                <th></th>
+                                                <th> </th>
+                                                <th></th>
+                                                <th>@juntas</th>
+                                                <th>@operadores</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+
                                     </table>
                                     @{
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                                         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                                     }
+                                    <!--
                                     <a asp-action="OperadoresParroquia"
                                        asp-route-sortOrder="@ViewData["CurrentSort"]"
                                        asp-route-pageNumber="@(Model.PageIndex - 1)"
@@ -115,6 +139,7 @@
                                        class="btn btn-default @nextDisabled">
                                         Siguiente
                                     </a>
+                                    -->
                                 </div>
                             </div>
                         </div>
@@ -125,6 +150,22 @@
     </section>
 </div>
 @*<div>
-    <a asp-controller="Home" asp-action="Index">Regresar al Inicio | </a>
-    <a asp-controller="Account" asp-action="Logout">Salir</a>
-</div>*@
+        <a asp-controller="Home" asp-action="Index">Regresar al Inicio | </a>
+        <a asp-controller="Account" asp-action="Logout">Salir</a>
+    </div>*@
+<script>
+    $(function () {
+        $("#RepParrOper").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#RepParrOper').DataTable();
+    });</script>
+

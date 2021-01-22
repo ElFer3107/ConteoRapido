@@ -22,20 +22,22 @@
                     <div asp-validation-summary="All" class="text-danger"></div>
                     @if (Model != null)
                     {
-                        <div class="card">
-                            <div class="card-header">
-                                <form asp-action="GeneralesParroquia" method="get">
-                                    <div class="form-actions no-color">
-                                        <p>
-                                            Ingrese Texto: <input type="text" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
-                                            <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
-                                            <a asp-action="GeneralesParroquia">Listado Completo</a>
-                                        </p>
-                                    </div>
-                                </form>
-                                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="card">
+                   
+                    <div class="card-header">
+                        <!--<form asp-action="GeneralesParroquia" method="get">
+        <div class="form-actions no-color">
+            <p>
+                Ingrese Texto: <input type="text" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+                <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
+                <a asp-action="GeneralesParroquia">Listado Completo</a>
+            </p>
+        </div>
+    </form>
+    -->
+                        <div asp-validation-summary="All" class="text-danger"></div>
 
-                            </div>
+                    </div>
                             <div class="card-body">
                                 <div class="form-group">
                                     <table id="GralCanton" class="table table-bordered table-striped">
@@ -87,71 +89,103 @@
                                                 <th></th>
                                             </tr>
                                         </thead>
+                                        @{
+                                            var juntas = 0;
+                                            var transmitidas = 0;
+                                            var descargadas = 0;
+                                            var asignadas = 0;
+                                            var asistencia = 0;
+
+                                        }
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.COD_PROVINCIA)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.NOM_PROVINCIA)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.COD_CANTON)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.NOM_CANTON)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.COD_PARROQUIA)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.NOM_PARROQUIA)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.NOM_ZONA)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.JUNTAS)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.ASIGNADAS)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.DESCARGADAS)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.REPORTADAS)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
-                                                </td>
-                                                <td>
-                                                    @Html.ActionLink("Detalles", "TransmitidasDetalle", new { codParroquia = item.COD_PARROQUIA }, new { @class = "btn btn-block btn-info" })
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.COD_PROVINCIA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.NOM_PROVINCIA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.COD_CANTON)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.NOM_CANTON)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.COD_PARROQUIA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.NOM_PARROQUIA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.NOM_ZONA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.JUNTAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ASIGNADAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.DESCARGADAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.REPORTADAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.ActionLink("Detalles", "TransmitidasDetalle", new { codParroquia = item.SEGUROCOD }, new { @class = "btn btn-block btn-info" })
+                                                    </td>
+                                                </tr>
+                                                juntas = juntas + item.JUNTAS;
+                                                asignadas = asignadas + item.ASIGNADAS;
+                                                descargadas = descargadas + item.DESCARGADAS;
+                                                asistencia = asistencia + item.REPORTADAS;
+                                                transmitidas = transmitidas + item.TRANSMITIDAS;
                                             }
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>TOTAL</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th> </th>
+                                                <th></th>
+                                                <th></th>
+                                                <th></th>
+                                                <th>@juntas</th>
+                                                <th>@asignadas</th>
+                                                <th>@descargadas</th>
+                                                <th>@asistencia</th>
+                                                <th>@transmitidas</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                     @{
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
                                         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                                     }
-                                    <a asp-action="GeneralesParroquia"
-                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                                       asp-route-pageNumber="@(Model.PageIndex - 1)"
-                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                                       class="btn btn-default @prevDisabled">
-                                        Anterior
-                                    </a>
-                                    <a asp-action="GeneralesParroquia"
-                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
-                                       asp-route-pageNumber="@(Model.PageIndex + 1)"
-                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                                       class="btn btn-default @nextDisabled">
-                                        Siguiente
-                                    </a>
+                                    <!--
+    <a asp-action="GeneralesParroquia"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @prevDisabled">
+        Anterior
+    </a>
+    <a asp-action="GeneralesParroquia"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @nextDisabled">
+        Siguiente
+    </a>
+    -->
                                 </div>
                             </div>
                         </div>

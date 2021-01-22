@@ -18,6 +18,7 @@ namespace CoreCRUDwithORACLE.ViewModels.Reportes
         public int ASIGNADAS { get; set; }
         public int DESCARGADAS { get; set; }
         public int REPORTADAS { get; set; }
-        public int TRANSMITIDAS { get; set; }   
+        public int TRANSMITIDAS { get; set; }
+        public string SEGUROCOD { get; set; }
     }
 }
