@@ -55,7 +55,7 @@
                                     </div>*@
                                 <div class="form-group">
                                     <label asp-for="CEDULAC" class="control-label"></label>
-                                    <!--<input asp-for="CEDULAC" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />-->
+                                    @*<input asp-for="CEDULAC" class="form-control" oninput="this.value = this.value.replace(/[^0-9]/g,'')" />*@
 
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -120,7 +120,7 @@
                                     <!--<input asp-for="MAIL" class="form-control" />-->
 
                                     <div class="input-group-prepend">
-                                        <input a asp-for="MAIL" type="email" class="form-control" placeholder="Email">
+                                        <input a asp-for="MAIL" type="email" maxlength="50" class="form-control" placeholder="Email">
                                         <div class="input-group-append">
                                             <div class="input-group-text">
                                                 <span class="fas fa-envelope"></span>

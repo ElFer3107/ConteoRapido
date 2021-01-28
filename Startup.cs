@@ -1,3 +1,4 @@
+using CoreCRUDwithORACLE.Comunes;
 using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.Models;
 using CoreCRUDwithORACLE.Servicios;
@@ -76,7 +77,7 @@ namespace CoreCRUDwithORACLE
             });
             services.AddDistributedMemoryCache();
 
-
+            services.AddSingleton<Helper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

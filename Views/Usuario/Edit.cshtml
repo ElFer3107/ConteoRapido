@@ -83,7 +83,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-user-check"></i></span>
                                         </div>
-                                        <input asp-for="NOMBRE" type="text" class="form-control" maxlength="30" readonly>
+                                        <input asp-for="NOMBRE" type="text" class="form-control"  maxlength="100" readonly>
                                     </div>
                                     <span asp-validation-for="NOMBRE" class="text-danger"></span>
                                 </div>
@@ -102,7 +102,7 @@
                                 <div class="form-group">
                                     <label asp-for="MAIL" class="control-label"></label>
                                     <div class="input-group-prepend">
-                                        <input a asp-for="MAIL" type="email" class="form-control" placeholder="Email">
+                                        <input a asp-for="MAIL" type="email" maxlength="50" class="form-control" placeholder="Email">
                                         <div class="input-group-append">
                                             <div class="input-group-text">
                                                 <span class="fas fa-envelope"></span>

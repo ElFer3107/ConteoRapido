@@ -7,6 +7,7 @@ namespace CoreCRUDwithORACLE.Comunes
 {
     public class Helper
     {
+        public readonly string CodigoEnrutar = "BarcelonaCampeon";
         //public static bool Autenticar(string usuario, string password)
         //{
         //    string sql = @"SELECT COUNT(*)

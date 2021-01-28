@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,8 +13,20 @@ namespace CoreCRUDwithORACLE.Models
         public int COD_JUNTA { get; set; }
         [DisplayName("CODIGO DE USUARIO")]
         public int COD_USUARIO { get; set; }
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [DisplayName("VOTOS")]
         public int VOT_JUNTA { get; set; }
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [DisplayName("BLANCOS")]
         public int BLA_JUNTA { get; set; }
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [DisplayName("NULOS")]
         public int NUL_JUNTA { get; set; }
+        public int Estado_Acta { get; set; }
+        public string PROVINCIA { get; set; }
+        public string CANTON { get; set; }
+        public string PARROQUIA { get; set; }
+        public string ZONA { get; set; }
+        public string JUNTA { get; set; }
     }
 }

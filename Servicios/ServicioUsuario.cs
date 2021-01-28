@@ -31,7 +31,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                            WHERE US.COD_PROVINCIA = PR.COD_PROVINCIA
                                            AND US.COD_ROL = RO.COD_ROL
                                            AND CED_USUARIO = {0}";
-                                           //AND EST_USUARIO = 1";
+        //AND EST_USUARIO = 1";
 
         private string consultaLogin = @"select count(*)
                                         from USUARIO
@@ -69,12 +69,6 @@ namespace CoreCRUDwithORACLE.Servicios
                                                     SET    CLA_USUARIO     = '{0}',
                                                            EST_CLA_USUARIO = '{1}'
                                                     WHERE  CED_USUARIO     = '{2}'";
-
-        private string encerarBase = @"update acta 
-                                            set cod_usuario=0, vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0, cormesa_junta=0, correcinto_junta=0;
-                                        delete from usuario where cod_usuario>1;
-                                        delete from asistencia ;
-                                        update  resultados set  fin_resultado=0, cod_vervotos = '';";
 
         public ServicioUsuario(IConfiguration _configuration, ILoggerFactory logger)
         {
@@ -118,7 +112,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         }
 
                         consultaUsuarios += " ORDER BY 1";
-                        
+
                         cmd.CommandText = string.Format(consultaUsuarios);
 
                         OracleDataReader odr = cmd.ExecuteReader();
@@ -130,7 +124,6 @@ namespace CoreCRUDwithORACLE.Servicios
                             {
                                 Usuario usuario = new Usuario
                                 {
-                                    SEGURO = _helper.EncriptarClave(Convert.ToString(odr["CEDULA"])),
                                     CEDULA = Convert.ToString(odr["CEDULA"]),
                                     COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
                                     PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
@@ -142,7 +135,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                     TELEFONO = Convert.ToString(odr["TEL_USUARIO"]),
                                     MAIL = Convert.ToString(odr["MAI_USUARIO"]),
                                     LOGEO = Convert.ToString(odr["LOG_USUARIO"]),
-                                    ESTADO = (Convert.ToString(odr["EST_USUARIO"])=="1"?true:false)
+                                    ESTADO = (Convert.ToString(odr["EST_USUARIO"]) == "1" ? true : false)
                                 };
                                 usuarios.Add(usuario);
                             }
@@ -150,7 +143,7 @@ namespace CoreCRUDwithORACLE.Servicios
                     }
                     catch (Exception ex)
                     {
-                        return usuarios;
+                        return usuarios = null;
                     }
                     finally
                     {
@@ -180,7 +173,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
-                        cmd.CommandText = string.Format(consultaUser, iCedula.Substring(0,9));
+                        cmd.CommandText = string.Format(consultaUser, iCedula.Substring(0, 9));
                         cmd.BindByName = true;
 
                         OracleDataReader odr = cmd.ExecuteReader();
@@ -198,7 +191,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                 usuario.PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]);
                                 usuario.LOGEO = Convert.ToString(odr["LOG_USUARIO"]);
                                 usuario.COD_ROL = Convert.ToInt32(odr["COD_ROL"]);
-                                usuario.TELEFONO = Convert.ToString(odr["TEL_USUARIO"]); 
+                                usuario.TELEFONO = Convert.ToString(odr["TEL_USUARIO"]);
                                 usuario.ROL = Convert.ToString(odr["DES_ROL"]);
                                 usuario.MAIL = Convert.ToString(odr["MAI_USUARIO"]);
                             }
@@ -245,7 +238,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             //clave = _helper.EncodePassword(usuarioActualizado.CLAVE); 
                             cmd.CommandText = string.Format(actualizaUsuario, usuarioActualizado.CODIGO_ROL, usuarioActualizado.LOGEO,
                                                             usuarioActualizado.CEDULA, usuarioActualizado.DIGITO, usuarioActualizado.NOMBRE,
-                                                            usuarioActualizado.MAIL, usuarioActualizado.ESTADO?"1":"0", usuarioActualizado.CODIGO_PROVINCIA,
+                                                            usuarioActualizado.MAIL, usuarioActualizado.ESTADO ? "1" : "0", usuarioActualizado.CODIGO_PROVINCIA,
                                                             telefono, usuarioActualizado.COD_USUARIO);
 
                             int odr = cmd.ExecuteNonQuery();
@@ -294,7 +287,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         clave = _helper.EncodePassword(iPass);
                         //cmd.CommandText = string.Format(consultaLogin, iMail, clave);
                         cmd.CommandText = string.Format(consultaUsuario, iMail, clave);
-                        
+
                         OracleDataReader odr = cmd.ExecuteReader();
 
                         if (odr.HasRows)
@@ -404,14 +397,26 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
                         cmd.CommandText = string.Format(consultaCodUsuario);
                         OracleDataReader odr = cmd.ExecuteReader();
-                        while (odr.Read())
+                        if (odr.HasRows)
                         {
-                            usuario.COD_USUARIO = Convert.ToInt32(odr["Codigo"]) + 1;
+                            while (odr.Read())
+                            {
+                                usuario.COD_USUARIO = Convert.ToInt32(odr["Codigo"]) + 1;
+                            }
+                        }
+                        else
+                        {
+                            usuario.COD_USUARIO = 1;
                         }
 
-                        cmd.CommandText = string.Format(ingresaUsuario, usuario.COD_USUARIO, usuario.CODIGO_ROL, usuario.MAIL.Substring(0, 20),
-                                                _helper.EncodePassword(usuario.CLAVE), usuario.CEDULA.Substring(0,9), usuario.CEDULA.Substring(9, 1),
-                                                usuario.NOMBRE, usuario.MAIL, usuario.ESTADO?"1":"0", usuario.CODIGO_PROVINCIA, usuario.TELEFONO);
+                        if (usuario.MAIL.Length > 20)
+                            usuario.LOGEO = usuario.MAIL.Substring(0, 20);
+                        else
+                            usuario.LOGEO = usuario.MAIL;
+
+                        cmd.CommandText = string.Format(ingresaUsuario, usuario.COD_USUARIO, usuario.CODIGO_ROL, usuario.LOGEO,
+                                                _helper.EncodePassword(usuario.CLAVE), usuario.CEDULA.Substring(0, 9), usuario.CEDULA.Substring(9, 1),
+                                                usuario.NOMBRE, usuario.MAIL, usuario.ESTADO ? "1" : "0", usuario.CODIGO_PROVINCIA, usuario.TELEFONO);
 
                         respuesta = await cmd.ExecuteNonQueryAsync();
                         return respuesta;
@@ -419,7 +424,7 @@ namespace CoreCRUDwithORACLE.Servicios
                     }
                     catch (Exception ex)
                     {
-                        
+
                         _logger.LogWarning("Error: " + ex.Message);
                         return respuesta;
                         //throw ex;
@@ -460,9 +465,9 @@ namespace CoreCRUDwithORACLE.Servicios
                             cmd.CommandType = CommandType.Text;
                             //cmd.CommandText = "CONSULTA_AUTENTICACION_USUARIO";
 
-                            
+
                             cmd.CommandText = string.Format(actualizaUsuarioClave, clave, estado,
-                                                            usuarioNew.CEDULA.Substring(0,9));
+                                                            usuarioNew.CEDULA.Substring(0, 9));
 
                             int odr = cmd.ExecuteNonQuery();
 
@@ -490,29 +495,56 @@ namespace CoreCRUDwithORACLE.Servicios
         public int EncerarBase()
         {
             //string cedula = "171496036";
+            string encerarBase1 = @"update acta set vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0, cormesa_junta=0, correcinto_junta=0";
+            string encerarBase2 = @"delete from usuario where cod_usuario>1";
+            string encerarBase3 = @"delete from asistencia";
+            string encerarBase4 = @"update  resultados set  fin_resultado=0, cod_vervotos = ''";
+            string encerarBase5 = @"update configuracion set est_configuracion = 0";
+            string encerarBase6 = @"insert into configuracion values (9,'Segundo Simulacro','0.9','24/01/2021',1)";
+
+
+
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
                 {
+                    OracleTransaction transaction;
+                    con.Open();
+                    cmd.Connection = con;
+                    transaction = con.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd.Transaction = transaction;
+
                     try
                     {
-                        con.Open();
-                        cmd.Connection = con;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        //cmd.CommandType = CommandType.Text;
-                        //cmd.CommandText = string.Format(encerarBase);
-                        cmd.CommandText = "PKG_APP_MOVIL.ENCERA_BASE_DATOS";
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = string.Format(encerarBase1);
+                        //cmd.CommandText = "PKG_APP_MOVIL.ENCERA_BASE_DATOS";
                         //cmd.Parameters.Add("I_CEDULA", OracleDbType.Varchar2, 20).Value = cedula;
                         //cmd.Parameters.Add("O_CURSOR", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
-                        OracleDataReader odr = cmd.ExecuteReader();
+                        int odr = cmd.ExecuteNonQuery();
 
-                        if (odr.HasRows)
-                            return 1;
 
-                        return 0;
+                        cmd.CommandText = encerarBase3;
+                        odr = cmd.ExecuteNonQuery();
+
+
+                        cmd.CommandText = encerarBase4;
+                        odr = cmd.ExecuteNonQuery();
+
+
+                        cmd.CommandText = encerarBase5;
+                        odr = cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = encerarBase6;
+                        odr = cmd.ExecuteNonQuery();
+                        transaction.Commit();
+                        return 1;
+
                     }
                     catch (Exception ex)
                     {
+                        transaction.Rollback();
                         return 0;
                     }
                     finally

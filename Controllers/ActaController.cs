@@ -118,7 +118,6 @@ namespace CoreCRUDwithORACLE.Controllers
             //return View(actas.ToList());
         }
 
-
         // GET: ActaController/Details/5
         public ActionResult Details(int id)
         {
@@ -245,6 +244,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
         }
 
+        
         // POST: ActaController/Delete/5
         //[HttpPost]
         //[ValidateAntiForgeryToken]

@@ -4,6 +4,7 @@ using CoreCRUDwithORACLE.Models;
 using CoreCRUDwithORACLE.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,8 @@ namespace CoreCRUDwithORACLE.Controllers
     public class AccountController : Controller
     {
         private readonly IServicioUsuario usuarioManager;
-        private static Auxiliar _helper;
+        //private static Auxiliar _helper;
+        private readonly IDataProtector protector;
 
         //private readonly UserManager<IdentityUser> userManager;
         //private readonly SignInManager<IdentityUser> signInManager;
@@ -33,9 +35,11 @@ namespace CoreCRUDwithORACLE.Controllers
 
         //}
 
-        public AccountController(IServicioUsuario usuarioManager)
+        public AccountController(IServicioUsuario usuarioManager,
+                            IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             this.usuarioManager = usuarioManager;
+            this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
         //[HttpGet]
@@ -87,7 +91,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 if (result != null)
                 {
 
-                    
+                    if (result.COD_ROL == 4)
+                    {
+                        ModelState.AddModelError(string.Empty, "Usuario no permitido.");
+                        return View();
+                    }
+
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, result.NOMBRE),
@@ -131,12 +140,14 @@ namespace CoreCRUDwithORACLE.Controllers
                     HttpContext.Session.SetString("cod_rol", result.COD_ROL.ToString());
                     ViewBag.CODROL = result.COD_ROL;
 
-                    _helper = new Auxiliar();
+                    //_helper = new Auxiliar();
 
                     if (result.EST_CLAVE == 0)
                     {
+                        //return RedirectToAction("AltaClave", new RouteValueDictionary(
+                        //                                new { controller = "Usuario", action = "AltaClave", cedula = _helper.EncriptarClave(result.CEDULA) }));
                         return RedirectToAction("AltaClave", new RouteValueDictionary(
-                                                        new { controller = "Usuario", action = "AltaClave", cedula = _helper.EncriptarClave(result.CEDULA) }));
+                                                        new { controller = "Usuario", action = "AltaClave", cedula = protector.Protect(result.CEDULA) }));
                     }
 
                     //var resultado = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
@@ -145,11 +156,6 @@ namespace CoreCRUDwithORACLE.Controllers
                     
                     HttpContext.Session.SetString("cod_provincia", result.COD_PROVINCIA.ToString());
                     
-                    if (result.COD_ROL == 4)
-                    {
-                        ModelState.AddModelError(string.Empty, "Intento de ingreso inválido");
-                        return View(model);
-                    }
                     return RedirectToAction("index", "home");
                 }
             }

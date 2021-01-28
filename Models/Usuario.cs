@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@ namespace CoreCRUDwithORACLE.Models
         public string NOMBRE { get; set; }
         public int COD_ROL { get; set; }
         public string ROL { get; set; }
+        [NotMapped]
         public string SEGURO { get; set; }
         public bool ESTADO { get; set; }
         [EmailAddress]

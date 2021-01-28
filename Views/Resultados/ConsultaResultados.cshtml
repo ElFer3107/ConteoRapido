@@ -1,0 +1,158 @@
+﻿@model CoreCRUDwithORACLE.Models.ResultadosVotos
+
+@{
+    ViewData["Title"] = "ConsultaResultados";
+}
+
+<h1>Consulta de Resultados</h1>
+
+
+<hr />
+
+<form asp-action="ConsultaResultados" method="get">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-actions no-color">
+        <p>
+            Ingrese Junta: <input type="text" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
+            @*<a asp-action="Index">Listado Completo</a>*@
+        </p>
+    </div>
+</form>
+
+@if (Model != null)
+{
+    @Html.ValidationSummary(true)
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="ConsultaResultados" method="post">
+                <table id="ActaCabecera" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                PROVINCIA
+                            </th>
+
+                            <th>
+                                CANTON
+                            </th>
+
+                            <th>
+                                PARROQUIA
+                            </th>
+                            <th>
+                                ZONA
+                            </th>
+                            <th>
+                                JUNTA
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*@foreach (var item in Model.Acta)
+                            {*@
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.PROVINCIA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.CANTON)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.PARROQUIA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.ZONA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.JUNTA)
+                            </td>
+                        </tr>
+                        @*}*@
+                    </tbody>
+                </table>
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Información Acta</h3>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Acta.VOT_JUNTA" class="control-label"></label>
+                            <input asp-for="Acta.VOT_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                            <span asp-validation-for="Acta.VOT_JUNTA" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Acta.BLA_JUNTA"></label>
+                            <input asp-for="Acta.BLA_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                            <span asp-validation-for="Acta.BLA_JUNTA" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Acta.NUL_JUNTA"></label>
+                            <input asp-for="Acta.NUL_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
+                            <span asp-validation-for="Acta.NUL_JUNTA" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Información Votos</h3>
+                    </div>
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="container">
+
+                            @foreach (var item in Model.Resultados)
+                            {
+                                <div class="row">
+                                    <div class="form-group">
+                                        <div class="col-md-5">
+                                            @Html.LabelFor(model => item.Orden)
+                                        </div>
+                                        <div class="col-md-7 ">
+                                            <input asp-for="@(item.Orden)" readonly />
+                                            @*@Html.TextBoxFor(model=> item.Orden, new { @class = "form-control", @readonly = "true" })*@
+                                            @Html.ValidationMessageFor(model => item.Orden)
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-5">
+                                            @Html.LabelFor(model => item.Candidato)
+                                        </div>
+                                        <div class="col-md-7">
+                                            <input asp-for="@( item.Candidato)" readonly />
+                                            @*@Html.TextBoxFor(model=> item.Candidato, new { @class = "form-control", @readonly = "true" })*@
+                                            @Html.ValidationMessageFor(model => item.Candidato)
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-5">
+                                            @Html.LabelFor(model => item.VOTOS)
+                                        </div>
+                                        <div class="col-md-7">
+                                            @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0" })*@
+                                            <input asp-for="@( item.VOTOS)" />
+                                            @Html.ValidationMessageFor(model => item.VOTOS)
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Guardar" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+}
+<div>
+    <a asp-controller="Home" asp-action="Index">Regresar al listado</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

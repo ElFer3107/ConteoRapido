@@ -10,16 +10,6 @@ namespace CoreCRUDwithORACLE.Models
 {
     public class ActaResponse : Acta
     {
-        ///Acta
-        //public int COD_JUNTA { get; set; }
-        //public int COD_USUARIO { get; set; }
-        //public int VOT_JUNTA { get; set; }
-        //public int BLA_JUNTA { get; set; }
-        //public int NUL_JUNTA { get; set; }
-        ///Acta
-
-        //P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, 
-        //J.JUNTA, J.SEXO, A.COD_JUNTA, A.COD_USUARIO,VOT_JUNTA,BLA_JUNTA,NUL_JUNTA
         public string USUARIO { get; set; }
         public int Cod_Provincia { get; set; }
         [DisplayName("PROVINCIA")]

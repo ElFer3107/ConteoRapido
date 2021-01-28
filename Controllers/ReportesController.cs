@@ -2,6 +2,7 @@
 using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.Models;
 using CoreCRUDwithORACLE.ViewModels.Reportes;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,7 +17,8 @@ namespace CoreCRUDwithORACLE.Controllers
     {
         private readonly IServicioReportes servicioReportes;
         private readonly ApplicationUser applicationUser;
-        private static Auxiliar _helper = new Auxiliar();
+        private readonly IDataProtector protector;
+        //private static Auxiliar _helper = new Auxiliar();
 
         //// GET: ReportesController
         //public ActionResult Index()
@@ -94,10 +96,12 @@ namespace CoreCRUDwithORACLE.Controllers
         //}
         //[ValidateAntiForgeryToken]
         //public async Task
-        public ReportesController(IServicioReportes _servicioReportes, ApplicationUser _applicationUser)
+        public ReportesController(IServicioReportes _servicioReportes, ApplicationUser _applicationUser,
+                            IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             servicioReportes = _servicioReportes;
             applicationUser = _applicationUser;
+            this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
         public async Task<IActionResult> Index(string sortOrder, string currentFilter,
@@ -144,6 +148,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View();
             }
 
+            operadoresProvincias = operadoresProvincias.Select(e =>
+              {
+                  e.SEGUROP = protector.Protect(e.COD_PROV.ToString());
+                  return e;
+              });
+
             if (!String.IsNullOrEmpty(textoBuscar))
             {
                 if (Int32.TryParse(textoBuscar, out number))
@@ -172,7 +182,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //return View(operadoresProvincias);
         }
 
-        [Route("Reportes/OperadoresCanton/'{codProvincia}'")]
+        [Route("Reportes/OperadoresCanton/{codProvincia}")]
         public async Task<IActionResult> OperadoresCanton(string codProvincia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -201,7 +211,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
             //_helper = new Auxiliar();
-            int iCodProvincia = Convert.ToInt32(_helper.DesencriptarClave(codProvincia));
+            int iCodProvincia = Convert.ToInt32(protector.Unprotect(codProvincia));
 
             if (iCodProvincia == 0)
                 operadoresCanton = await servicioReportes.OperadoresCanton();
@@ -213,6 +223,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            operadoresCanton = operadoresCanton.Select(e =>
+            {
+                e.operadoresProvincia.SEGUROP = protector.Protect(e.COD_CANTON.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -250,7 +266,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //return View(operadoresCanton);
         }
 
-        [Route("Reportes/OperadoresParroquia/'{codCanton}'")]
+        [Route("Reportes/OperadoresParroquia/{codCanton}")]
         public async Task<IActionResult> OperadoresParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -280,7 +296,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
+            int iCodCanton = Convert.ToInt32(protector.Unprotect(codCanton));
             if (iCodCanton == 0)
                 operadoresParroquia = await servicioReportes.OperadoresParroquia();
             else
@@ -291,6 +307,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            operadoresParroquia = operadoresParroquia.Select(e =>
+            {
+                e.operadoresCanton.operadoresProvincia.SEGUROP = protector.Protect(e.PCODIGO.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -334,7 +356,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //return View(operadoresParroquia);
         }
 
-        [Route("Reportes/DetalleOperadores/'{codParroquia}'")]
+        [Route("Reportes/DetalleOperadores/{codParroquia}")]
         public async Task<IActionResult> DetalleOperadores(string codParroquia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -363,7 +385,8 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            int iCodParroquia = Convert.ToInt32(_helper.DesencriptarClave(codParroquia));
+            int iCodParroquia = Convert.ToInt32(protector.Unprotect(codParroquia));
+
             if (iCodParroquia == 0)
                 operadoresDetalle = await servicioReportes.OperadoresDetalle();
             else
@@ -374,6 +397,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            //operadoresDetalle = operadoresDetalle.Select(e =>
+            //{
+            //    e. operadoresCanton.operadoresProvincia.SEGUROP = protector.Protect(e.PCODIGO.ToString());
+            //    return e;
+            //});
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -467,6 +496,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View();
             }
 
+            transmitidasProvincias = transmitidasProvincias.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.CODIGO.ToString());
+                return e;
+            });
+
             if (!String.IsNullOrEmpty(textoBuscar))
             {
                 if (Int32.TryParse(textoBuscar, out number))
@@ -494,7 +529,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(await PaginatedListAsync<ATransmitidasProvincia>.CreateAsync(transmitidasProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasProvincias);
         }
-        [Route("Reportes/TransmitidasCanton/'{codProvincia}'")]
+        [Route("Reportes/TransmitidasCanton/{codProvincia}")]
         public async Task<IActionResult> TransmitidasCanton(string codProvincia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -520,7 +555,7 @@ namespace CoreCRUDwithORACLE.Controllers
             ViewData["CurrentFilter"] = textoBuscar;
 
             IEnumerable<ATransmitidasCanton> transmitidasCanton = null;
-            int iCodProvincia = Convert.ToInt32(_helper.DesencriptarClave(codProvincia));
+            int iCodProvincia = Convert.ToInt32(protector.Unprotect(codProvincia));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
             if (iCodProvincia == 0)
@@ -533,6 +568,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            transmitidasCanton = transmitidasCanton.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.CODIGO.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -568,7 +609,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(await PaginatedListAsync<ATransmitidasCanton>.CreateAsync(transmitidasCanton.AsQueryable(), pageNumber ?? 1, pageSize));
 
         }
-        [Route("Reportes/TransmitidasParroquia/'{codCanton}'")]
+        [Route("Reportes/TransmitidasParroquia/{codCanton}")]
         public async Task<IActionResult> TransmitidasParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -594,7 +635,7 @@ namespace CoreCRUDwithORACLE.Controllers
 
             ViewData["CurrentFilter"] = textoBuscar;
 
-            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
+            int iCodCanton = Convert.ToInt32(protector.Unprotect(codCanton));
             IEnumerable<ATransmitidasParroquias> transmitidasParroquia = null;
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
@@ -609,6 +650,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            transmitidasParroquia = transmitidasParroquia.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.CODIGO.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -651,7 +698,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(await PaginatedListAsync<ATransmitidasParroquias>.CreateAsync(transmitidasParroquia.AsQueryable(), pageNumber ?? 1, pageSize));
             //return View(transmitidasParroquia);
         }
-        [Route("Reportes/TransmitidasDetalle/'{codParroquia}'")]
+        [Route("Reportes/TransmitidasDetalle/{codParroquia}")]
         public async Task<IActionResult> TransmitidasDetalle(string codParroquia, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -676,7 +723,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
 
             ViewData["CurrentFilter"] = textoBuscar;
-            int iCodParroquia = Convert.ToInt32(_helper.DesencriptarClave(codParroquia));
+            int iCodParroquia = Convert.ToInt32(protector.Unprotect(codParroquia));
             IEnumerable<DetallesTransmitidas> transmitidasParroquia = null;
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
@@ -779,6 +826,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View();
             }
 
+            generalProvincias = generalProvincias.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.COD_PROVINCIA.ToString());
+                return e;
+            });
+
             if (!String.IsNullOrEmpty(textoBuscar))
             {
                 if (Int32.TryParse(textoBuscar, out number))
@@ -806,7 +859,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(await PaginatedListAsync<InformacionGeneral>.CreateAsync(generalProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
             
         }
-        [Route("Reportes/GeneralCanton/'{codigoProvincia}'")]
+        [Route("Reportes/GeneralCanton/{codigoProvincia}")]
         public async Task<IActionResult> GeneralCanton(string codigoProvincia, string sortOrder, string currentFilter,
                                                string textoBuscar, int? pageNumber)
         {
@@ -830,7 +883,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
 
             ViewData["CurrentFilter"] = textoBuscar;
-            int ICodigoProvincia = Convert.ToInt32(_helper.DesencriptarClave(codigoProvincia));
+            int ICodigoProvincia = Convert.ToInt32(protector.Unprotect(codigoProvincia));
             IEnumerable<InformacionGeneral> generalesCanton = null;
 
             //if (!codigoProvincia.HasValue)
@@ -845,6 +898,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            generalesCanton = generalesCanton.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.COD_CANTON.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {
@@ -880,7 +939,7 @@ namespace CoreCRUDwithORACLE.Controllers
             return View(await PaginatedListAsync<InformacionGeneral>.CreateAsync(generalesCanton.AsQueryable(), pageNumber ?? 1, pageSize));
 
         }
-        [Route("Reportes/GeneralesParroquia/'{codCanton}'")]
+        [Route("Reportes/GeneralesParroquia/{codCanton}")]
         public async Task<IActionResult> GeneralesParroquia(string codCanton, string sortOrder, string currentFilter,
                                                 string textoBuscar, int? pageNumber)
         {
@@ -911,7 +970,7 @@ namespace CoreCRUDwithORACLE.Controllers
             //int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
             //if (!codigoProvincia.HasValue)
             //    return RedirectToAction("Logout", "Account");
-            int iCodCanton = Convert.ToInt32(_helper.DesencriptarClave(codCanton));
+            int iCodCanton = Convert.ToInt32(protector.Unprotect(codCanton));
             if (iCodCanton == 0)
                 generalesParroquia = await servicioReportes.GeneralParroquia();
             else
@@ -922,6 +981,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existen Registros.");
                 return View();
             }
+
+            generalesParroquia = generalesParroquia.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.COD_PARROQUIA.ToString());
+                return e;
+            });
 
             if (!String.IsNullOrEmpty(textoBuscar))
             {

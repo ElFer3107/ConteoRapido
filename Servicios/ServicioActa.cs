@@ -13,6 +13,7 @@ namespace CoreCRUDwithORACLE.Servicios
     public class ServicioActa : IServicioActa
     {
         private readonly string _conn;
+        private Comunes.Auxiliar _helper = new Comunes.Auxiliar();
 
         public ServicioActa(IConfiguration _configuration)
         {
@@ -21,7 +22,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
         private string consultaActas = @" SELECT P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, 
                                                  Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA, J.SEXO,
-                                                 A. COD_JUNTA, A.COD_USUARIO, U.NOM_USUARIO, VOT_JUNTA,BLA_JUNTA,NUL_JUNTA       
+                                                 A.COD_JUNTA, A.COD_USUARIO, U.NOM_USUARIO, VOT_JUNTA,BLA_JUNTA,NUL_JUNTA       
                                                  FROM PROVINCIA P, CANTON C, PARROQUIA Q , ZONA Z, JUNTA J, ACTA A, USUARIO U
                                                  WHERE J.COD_ZONA=Z.COD_ZONA
                                                  AND Z.COD_PARROQUIA=Q.COD_PARROQUIA
@@ -30,14 +31,53 @@ namespace CoreCRUDwithORACLE.Servicios
                                                  AND J.COD_PROVINCIA=P.COD_PROVINCIA
                                                  AND A.COD_JUNTA=J.COD_JUNTA
                                                  AND A.COD_USUARIO = U.COD_USUARIO(+)";
-        
+
         private string consultaAsignacion = @" select cod_junta
                                          from acta 
                                          where cod_usuario = {0}";
 
+        private string consultaResultadosCand = @"SELECT R.COD_JUNTA, R.COD_CANDIDATO, C.NOM_CANDIDATO, R.FIN_RESULTADO, c.ORD_CANDIDATO
+                                                    FROM RESULTADOS R, ACTA A, CANDIDATO C
+                                                    WHERE R.COD_JUNTA = A.COD_JUNTA
+                                                    AND R.COD_CANDIDATO = C.COD_CANDIDATO
+                                                    AND A.COD_JUNTA = {0}";
+
+        private string consultaResultadosActa = @"SELECT P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, 
+                                                    Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA || J.SEXO AS JUNTA,
+                                                    A.COD_JUNTA, A.COD_USUARIO,  VOT_JUNTA,BLA_JUNTA,NUL_JUNTA, A.EST_ACTA    
+                                                    FROM PROVINCIA P, CANTON C, PARROQUIA Q , ZONA Z, JUNTA J, ACTA A
+                                                    WHERE J.COD_ZONA=Z.COD_ZONA
+                                                    AND Z.COD_PARROQUIA=Q.COD_PARROQUIA
+                                                    AND J.COD_PARROQUIA=Q.COD_PARROQUIA
+                                                    AND J.COD_CANTON=C.COD_CANTON
+                                                    AND J.COD_PROVINCIA=P.COD_PROVINCIA
+                                                    AND A.COD_JUNTA=J.COD_JUNTA
+                                                    AND A.COD_JUNTA = {0}";
+
         private string actualizaActa = @" update acta 
                                           set cod_usuario = {0}
                                          where cod_junta = {1}";
+
+        private string actualizarVotosActa = @"UPDATE CONTEORAPIDO2021.ACTA
+                                        SET    VOT_JUNTA             = {0},
+                                               BLA_JUNTA             = {1},
+                                               NUL_JUNTA             = {2},
+                                               FEC_JUNTA             = to_date('{3}', 'dd/mm/yyyy hh24:mi:ss'),
+                                               NOV_ACTA              = {4},
+                                               TIPO_DOCUMENTO        = {5},
+                                               COD_USUARIO_DIGITADOR = {6},
+                                               EST_ACTA              = {7},
+                                               FEC_TRANSMISION       = CURRENT_DATE,
+                                               COD_VERRESULTADOS     = '{8}'
+                                           WHERE COD_JUNTA             = {9} AND
+                                                COD_USUARIO           ={10} AND
+                                                EST_ACTA             = 0";
+
+        private string actualizaResultado = @"UPDATE CONTEORAPIDO2021.RESULTADOS
+                                            SET    FIN_RESULTADO             = {0},
+                                                   COD_VERVOTOS             = '{1}'
+                                           WHERE COD_JUNTA             = {2} AND
+                                                 COD_CANDIDATO          = {3}";
         public IEnumerable<ActaResponse> GetActas(int codigoProvincia)
         {
             List<ActaResponse> actas = null;
@@ -278,6 +318,189 @@ namespace CoreCRUDwithORACLE.Servicios
 
                 }
             }
+        }
+
+        public ResultadosVotos ConsultaResultados(int? codigoJunta)
+        {
+            ResultadosVotos resultados = null;
+            List<Resultado> resultadosVotos = null;
+            Resultado resultado = null;
+            Acta acta = null;
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    OracleTransaction transaction;
+                    con.Open();
+                    cmd.Connection = con;
+                    transaction = con.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd.Transaction = transaction;
+                    try
+                    {
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaResultadosActa, codigoJunta);
+
+                        OracleDataReader odr = cmd.ExecuteReader();
+
+                        if (odr.HasRows)
+                        {
+                            while (odr.Read())
+                            {
+                                acta = new Acta
+                                {
+                                    COD_JUNTA = Convert.ToInt32(odr["COD_JUNTA"]),
+                                    VOT_JUNTA = Convert.ToInt32(odr["VOT_JUNTA"]),
+                                    BLA_JUNTA = Convert.ToInt32(odr["BLA_JUNTA"]),
+                                    NUL_JUNTA = Convert.ToInt32(odr["NUL_JUNTA"]),
+                                    PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
+                                    CANTON = Convert.ToString(odr["NOM_CANTON"]),
+                                    PARROQUIA = Convert.ToString(odr["NOM_PARROQUIA"]),
+                                    ZONA = Convert.ToString(odr["NOM_ZONA"]),
+                                    JUNTA = Convert.ToString(odr["JUNTA"]),
+                                    Estado_Acta = Convert.ToInt32(odr["EST_ACTA"])
+                                };
+                            }
+                        }
+                        else
+                        {
+                            return resultados = null;
+                        }
+
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaResultadosCand, codigoJunta);
+
+                        odr = cmd.ExecuteReader();
+
+                        if (odr.HasRows)
+                        {
+                            resultadosVotos = new List<Resultado>();
+                            while (odr.Read())
+                            {
+                                resultado = new Resultado
+                                {
+                                    Candidato = Convert.ToString(odr["NOM_CANDIDATO"]),
+                                    Cod_Candidato = Convert.ToInt32(odr["COD_CANDIDATO"]),
+                                    Orden = Convert.ToInt32(odr["ORD_CANDIDATO"]),
+                                    VOTOS = Convert.ToInt32(odr["FIN_RESULTADO"])
+                                };
+                                resultadosVotos.Add(resultado);
+                            }
+                        }
+                        else
+                            return resultados = null;
+
+                        transaction.Commit();
+                        resultados = new ResultadosVotos()
+                        {
+                            Acta = acta,
+                            Resultados = resultadosVotos
+                        };
+                        //resultados.Acta = acta;
+                        //resultados.Resultados = resultadosVotos;
+
+                        return resultados;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return resultados = null;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+
+                }
+            }
+        }
+
+        public Respuesta ActualizarVotosActa(ResultadosVotos resultados)
+        {
+            Acta acta = new Acta();
+            acta = resultados.Acta;
+            string codigoVerificacion = string.Empty;
+            string codigoVerificacionv = string.Empty;
+            Respuesta respuesta = new Respuesta();
+
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    OracleTransaction transaction;
+                    con.Open();
+                    cmd.Connection = con;
+                    transaction = con.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd.Transaction = transaction;
+
+                    try
+                    {
+                        //UPDATE CONTEORAPIDO2021.ACTA
+                        //                SET    VOT_JUNTA = { 0},
+                        //                       BLA_JUNTA = { 1},
+                        //                       NUL_JUNTA = { 2},
+                        //                       FEC_JUNTA = to_date('{3}', 'dd/mm/yyyy hh24:mi:ss'),
+                        //                       NOV_ACTA = { 4},
+                        //                       TIPO_DOCUMENTO = { 5},
+                        //                       COD_USUARIO_DIGITADOR = { 6},
+                        //                       EST_ACTA = { 7},
+                        //                       FEC_TRANSMISION = CURRENT_DATE,
+                        //                       COD_VERRESULTADOS = '{8}'
+                        //                   WHERE COD_JUNTA = { 9 } AND
+                        //              COD_USUARIO = { 10 } AND
+                        //       EST_ACTA = 0
+                        cmd.CommandType = CommandType.Text;
+                        codigoVerificacion = _helper.EncodePassword(acta.COD_USUARIO + acta.JUNTA + DateTime.Now.ToString() + acta.VOT_JUNTA);
+                        cmd.CommandText = string.Format(actualizarVotosActa, acta.VOT_JUNTA, acta.BLA_JUNTA, acta.NUL_JUNTA,
+                                                        DateTime.Now.ToString(), 1, 1, acta.COD_USUARIO, 1, codigoVerificacion,
+                                                        acta.JUNTA, acta.COD_USUARIO);
+                        //OracleDataReader odr = cmd.ExecuteReader();
+                        int resultadoActa = cmd.ExecuteNonQuery();
+                        if (resultadoActa > 0)
+                        {
+                            foreach (var voto in resultados.Resultados)
+                            {
+                                codigoVerificacionv = _helper.EncodePassword(voto.VOTOS + voto.Cod_Candidato + DateTime.Now.ToString() + voto.Candidato);
+                                cmd.CommandText = string.Format(actualizaResultado, voto.VOTOS, codigoVerificacionv, acta.COD_JUNTA, voto.Cod_Candidato);
+                                int resultadoVoto = cmd.ExecuteNonQuery();
+                                if (resultadoVoto == 0)
+                                {
+                                    transaction.Rollback();
+                                    respuesta.codigoResultado = 3;
+                                    return respuesta;
+                                }
+                            }
+                            transaction.Commit();
+                            respuesta.CodigoVerificacion = codigoVerificacion;
+                            respuesta.codigoResultado = 1;
+                            //iResult = 1;
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            respuesta.codigoResultado = 4;
+                        }
+                    }
+                    catch (Exception EX)
+                    {
+                        transaction.Rollback();
+                        respuesta.codigoResultado = 2;
+                        respuesta.Mensaje = EX.Message;
+                        return respuesta;
+                    }
+                    finally
+                    {
+                        con.Dispose();
+                        con.Close();
+                    }
+                }
+            }
+            return respuesta;
         }
     }
 }
