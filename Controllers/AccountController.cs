@@ -20,20 +20,8 @@ namespace CoreCRUDwithORACLE.Controllers
     public class AccountController : Controller
     {
         private readonly IServicioUsuario usuarioManager;
-        //private static Auxiliar _helper;
         private readonly IDataProtector protector;
 
-        //private readonly UserManager<IdentityUser> userManager;
-        //private readonly SignInManager<IdentityUser> signInManager;
-
-        //public AccountController(UserManager<IdentityUser> userManager,
-        //                         SignInManager<IdentityUser> signInManager,
-        //                         IServicioUsuario usuarioManager)
-        //{
-        //    this.userManager = userManager;
-        //    this.signInManager = signInManager;
-
-        //}
 
         public AccountController(IServicioUsuario usuarioManager,
                             IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
@@ -41,34 +29,6 @@ namespace CoreCRUDwithORACLE.Controllers
             this.usuarioManager = usuarioManager;
             this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
-
-        //[HttpGet]
-        //public IActionResult Register()
-        //{
-        //    return View();
-        //}
-
-        //[HttpPost]
-        //public async Task<IActionResult> Register(RegisterViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-        //        var result = await userManager.CreateAsync(user, model.Password);
-
-        //        if (result.Succeeded)
-        //        {
-        //            await signInManager.SignInAsync(user, isPersistent: false);
-        //            return RedirectToAction("index", "home");
-        //        }
-
-        //        foreach (var error in result.Errors)
-        //        {
-        //            ModelState.AddModelError("", error.Description);
-        //        }
-        //    }
-        //    return View(model);
-        //}
 
         [HttpGet]
         public async Task<IActionResult> Login()
@@ -85,7 +45,6 @@ namespace CoreCRUDwithORACLE.Controllers
         {
             if (ModelState.IsValid)
             {
-                //var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 Login result = usuarioManager.GetAutenticacionUsuario(model.Email, model.Password);
 
                 if (result != null)
@@ -140,19 +99,11 @@ namespace CoreCRUDwithORACLE.Controllers
                     HttpContext.Session.SetString("cod_rol", result.COD_ROL.ToString());
                     ViewBag.CODROL = result.COD_ROL;
 
-                    //_helper = new Auxiliar();
-
                     if (result.EST_CLAVE == 0)
                     {
-                        //return RedirectToAction("AltaClave", new RouteValueDictionary(
-                        //                                new { controller = "Usuario", action = "AltaClave", cedula = _helper.EncriptarClave(result.CEDULA) }));
                         return RedirectToAction("AltaClave", new RouteValueDictionary(
                                                         new { controller = "Usuario", action = "AltaClave", cedula = protector.Protect(result.CEDULA) }));
                     }
-
-                    //var resultado = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
-                    //ViewBag.Model = model;
-                    //if (resultado.Succeeded)
                     
                     HttpContext.Session.SetString("cod_provincia", result.COD_PROVINCIA.ToString());
                     
@@ -166,7 +117,6 @@ namespace CoreCRUDwithORACLE.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            //await signInManager.SignOutAsync();
             HttpContext.Session.SetString("cod_rol", "");
 
             await HttpContext.SignOutAsync(
@@ -174,12 +124,5 @@ namespace CoreCRUDwithORACLE.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        //[HttpPost]
-        //public IActionResult Logout()
-        //{
-        //    //await signInManager.SignOutAsync();
-        //    HttpContext.Session.SetString("cod_rol", null);
-        //    return RedirectToAction("Login", "Account");
-        //}
     }
 }

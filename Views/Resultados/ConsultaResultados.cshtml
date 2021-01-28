@@ -108,32 +108,34 @@
                                 <div class="row">
                                     <div class="form-group">
                                         <div class="col-md-5">
-                                            @Html.LabelFor(model => item.Orden)
+                                            @Html.LabelFor(m => item.Orden)
                                         </div>
                                         <div class="col-md-7 ">
-                                            <input asp-for="@(item.Orden)" readonly />
-                                            @*@Html.TextBoxFor(model=> item.Orden, new { @class = "form-control", @readonly = "true" })*@
-                                            @Html.ValidationMessageFor(model => item.Orden)
+                                            <input asp-for="@(item.Orden)" type="text" readonly />
+                                            @*@Html.EditorFor(m => item.Orden, new { @class = "form-control", @readonly = "true" })*@
+                                            @Html.ValidationMessageFor(m => item.Orden)
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-5">
-                                            @Html.LabelFor(model => item.Candidato)
+                                            @Html.LabelFor(m => item.Candidato)
                                         </div>
                                         <div class="col-md-7">
-                                            <input asp-for="@( item.Candidato)" readonly />
-                                            @*@Html.TextBoxFor(model=> item.Candidato, new { @class = "form-control", @readonly = "true" })*@
-                                            @Html.ValidationMessageFor(model => item.Candidato)
+                                            <input asp-for="@(item.Candidato)" readonly />
+                                            @*@Html.EditorFor(m => item.Candidato, new { @class = "form-control", @readonly = "true" })*@
+                                            @Html.ValidationMessageFor(m => item.Candidato)
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-5">
-                                            @Html.LabelFor(model => item.VOTOS)
+                                            @*@Html.LabelFor(m => item.VOTOS)*@
+
                                         </div>
                                         <div class="col-md-7">
-                                            @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0" })*@
-                                            <input asp-for="@( item.VOTOS)" />
-                                            @Html.ValidationMessageFor(model => item.VOTOS)
+                                            @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0", @maxlength="3" })*@
+                                            @*@Html.EditorFor(m => m.item.VOTOS, new { @value="3", @maxlength="3" } )*@
+                                            <input asp-for="@(item.VOTOS)" type="text" maxlength="3" />
+                                            @Html.ValidationMessageFor(m => item.VOTOS)
                                         </div>
                                     </div>
                                 </div>

@@ -16,7 +16,7 @@ namespace CoreCRUDwithORACLE.Controllers
 {
     public class UsuarioController : Controller
     {
-        //[Produces("application/json")]
+        
         IServicioUsuario servicioUsuario;
         private static Auxiliar auxiliar;
         private readonly IDataProtector protector;
@@ -79,10 +79,8 @@ namespace CoreCRUDwithORACLE.Controllers
             int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
             int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
 
-            //auxiliar = new Auxiliar();
-            var cedula = protector.Unprotect(id); //auxiliar.DesencriptarClave(id);
+            var cedula = protector.Unprotect(id); 
             Usuario usuario = servicioUsuario.GetUsuario(cedula);
-            //Usuario usuario = servicioUsuario.GetUsuario(id);
 
             if (usuario == null)
             {
@@ -210,13 +208,6 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(usuarioMod);
             }
 
-
-            //return View(respuesta);
-            //if (respuesta != null)
-            //return RedirectToPage("/Index");
-
-            //else
-            //return View();
         }
         public ActionResult IngresaUsuario()
         {
@@ -230,8 +221,7 @@ namespace CoreCRUDwithORACLE.Controllers
             int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
 
             UsuarioViewModel usuarioViewModel = new UsuarioViewModel();
-            //if (codigoRol == 3)
-            //{
+            
             switch (codigoRol)
             {
                 case 1:
@@ -253,11 +243,7 @@ namespace CoreCRUDwithORACLE.Controllers
                                      Selected = false
                                  }).ToList();
 
-                    //roles.Insert(0, new SelectListItem()
-                    //{
-                    //    Text = "----Elija Rol----",
-                    //    Value = string.Empty
-                    //});
+                    
                     usuarioViewModel.provincias = provincias;
                     usuarioViewModel.roles = roles;
                     break;
@@ -357,11 +343,6 @@ namespace CoreCRUDwithORACLE.Controllers
                                      Selected = false
                                  }).ToList();
 
-                    //roles.Insert(0, new SelectListItem()
-                    //{
-                    //    Text = "----Elija Rol----",
-                    //    Value = string.Empty
-                    //});
                     usuarionNew.provincias = provincias;
                     usuarionNew.roles = roles;
                     break;
@@ -458,7 +439,6 @@ namespace CoreCRUDwithORACLE.Controllers
             {
                 var nombreUsuario = User.Claims.FirstOrDefault(x => x.Type == "Id").Value;
                 _logger.LogInformation("Usuario:" + nombreUsuario + " Ingresa: " + usuario.CEDULA);
-                //ModelState.
                 ViewBag.Message = "Usuario ingresado exitosamente!";
                 return RedirectToAction(nameof(Index));
             }
@@ -480,7 +460,7 @@ namespace CoreCRUDwithORACLE.Controllers
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
 
-            var id = protector.Unprotect(cedula); //auxiliar.DesencriptarClave(id);
+            var id = protector.Unprotect(cedula); 
 
             Usuario usuario = servicioUsuario.GetUsuario(id);
 
@@ -500,7 +480,6 @@ namespace CoreCRUDwithORACLE.Controllers
             if (usuarioNew == null)
                 return RedirectToAction("Logout", "Account");
 
-            //string codRol = usuarioNew.
             string id = usuarioNew.CEDULA;
             usuarioNew.CEDULA = protector.Unprotect(id);
 
@@ -531,7 +510,7 @@ namespace CoreCRUDwithORACLE.Controllers
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
 
-            var id = protector.Unprotect(cedula); //auxiliar.DesencriptarClave(id);
+            var id = protector.Unprotect(cedula); 
 
             Usuario usuario = servicioUsuario.GetUsuario(id);
 

@@ -20,12 +20,5 @@ namespace CoreCRUDwithORACLE.ViewModels
         [Display(Name = "Recuerdame")]
         public bool RememberMe { get; set; }
 
-        //public bool IsLogin { get; set; }
-        //[Required]
-        //public string Usuario { get; set; }
-
-        //[Required]
-        //public string Contrasenia { get; set; }
-
     }
 }

@@ -216,7 +216,6 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
                         cmd.CommandText = string.Format(actualizaActa, cod_usuario, junta);
-                        //cmd.BindByName = true;
 
                         return resultado = cmd.ExecuteNonQuery();
 
@@ -234,7 +233,6 @@ namespace CoreCRUDwithORACLE.Servicios
 
                 }
             }
-            //return resultado;
         }
 
         public Acta ConsultarAsignacion(int codigoUsuario)
@@ -300,7 +298,6 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
                         cmd.CommandText = string.Format(actualizaActa, 0, codigoJunta);
-                        //cmd.BindByName = true;
 
                         return resultado = cmd.ExecuteNonQuery();
 
@@ -398,8 +395,6 @@ namespace CoreCRUDwithORACLE.Servicios
                             Acta = acta,
                             Resultados = resultadosVotos
                         };
-                        //resultados.Acta = acta;
-                        //resultados.Resultados = resultadosVotos;
 
                         return resultados;
 
@@ -440,26 +435,13 @@ namespace CoreCRUDwithORACLE.Servicios
 
                     try
                     {
-                        //UPDATE CONTEORAPIDO2021.ACTA
-                        //                SET    VOT_JUNTA = { 0},
-                        //                       BLA_JUNTA = { 1},
-                        //                       NUL_JUNTA = { 2},
-                        //                       FEC_JUNTA = to_date('{3}', 'dd/mm/yyyy hh24:mi:ss'),
-                        //                       NOV_ACTA = { 4},
-                        //                       TIPO_DOCUMENTO = { 5},
-                        //                       COD_USUARIO_DIGITADOR = { 6},
-                        //                       EST_ACTA = { 7},
-                        //                       FEC_TRANSMISION = CURRENT_DATE,
-                        //                       COD_VERRESULTADOS = '{8}'
-                        //                   WHERE COD_JUNTA = { 9 } AND
-                        //              COD_USUARIO = { 10 } AND
-                        //       EST_ACTA = 0
+                        
                         cmd.CommandType = CommandType.Text;
                         codigoVerificacion = _helper.EncodePassword(acta.COD_USUARIO + acta.JUNTA + DateTime.Now.ToString() + acta.VOT_JUNTA);
                         cmd.CommandText = string.Format(actualizarVotosActa, acta.VOT_JUNTA, acta.BLA_JUNTA, acta.NUL_JUNTA,
                                                         DateTime.Now.ToString(), 1, 1, acta.COD_USUARIO, 1, codigoVerificacion,
                                                         acta.JUNTA, acta.COD_USUARIO);
-                        //OracleDataReader odr = cmd.ExecuteReader();
+                        
                         int resultadoActa = cmd.ExecuteNonQuery();
                         if (resultadoActa > 0)
                         {
@@ -478,7 +460,6 @@ namespace CoreCRUDwithORACLE.Servicios
                             transaction.Commit();
                             respuesta.CodigoVerificacion = codigoVerificacion;
                             respuesta.codigoResultado = 1;
-                            //iResult = 1;
                         }
                         else
                         {

@@ -19,9 +19,6 @@ namespace CoreCRUDwithORACLE.Models
         public DbSet<Parroquia> PARROQUIA { get; set; }
         public DbSet<Zona> ZONA { get; set; }
         public DbSet<Junta> JUNTA { get; set; }
-        //public DbSet<AOperadoresProvincia> aOperadoresProvincias { get; set; }
-        //public DbSet<AOperadoresCanton> aOperadoresCantones { get; set; }
-        //public DbSet<AOperadoresParroquia> aOperadoresParroquias { get; set; }
 
     }
 }
