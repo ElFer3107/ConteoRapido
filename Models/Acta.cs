@@ -29,5 +29,6 @@ namespace CoreCRUDwithORACLE.Models
         public string ZONA { get; set; }
         public string JUNTA { get; set; }
         public int TOT_ELECTORES { get; set; }
+        public int NOV_ACTA { get; set; }
     }
 }

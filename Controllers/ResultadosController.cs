@@ -46,7 +46,7 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existe información.");
                 return View();
             }
-            ViewBag.Validaciones = string.Format("Name: {0} {1}", "Hola desde el Controlador", "Jhairo Rivera");
+            ViewBag.Success = "1";
             return View("ConsultaResultados", resultadosVotos);
         }
 
@@ -77,7 +77,11 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existe información.");
                 return View();
             }
-
+            string codCandidatos = "";
+            foreach (var item in resultadosVotos.Resultados)
+                codCandidatos += item.Cod_Candidato + "|";
+            ViewBag.CodCandidatos = codCandidatos.TrimEnd('|');
+            ViewBag.Success = resultadosVotos.Acta.VOT_JUNTA > 0 ? "2" : "";
             return View(resultadosVotos);
         }
         private bool validaciones(ResultadosVotos resultadosVotos)
@@ -128,7 +132,6 @@ namespace CoreCRUDwithORACLE.Controllers
         {
             if (!User.Identity.IsAuthenticated)
                 return Redirect("Account/LogOut");
-
             var _list = new List<Resultado>();
             for (int i = 0; i < resultadosVotos._CodCandidato.Count; i++)
             {
@@ -140,19 +143,17 @@ namespace CoreCRUDwithORACLE.Controllers
                     VOTOS = resultadosVotos._Votos[i]
                 });
             }
-            var smsVal = validaciones(resultadosVotos);
+            //var smsVal = validaciones(resultadosVotos);
             resultadosVotos.Resultados = _list.AsEnumerable();
             string cedula = User.Claims.FirstOrDefault(x => x.Type == "Id").Value;
             Usuario usuario = servicioUsuario.GetUsuario(cedula);
             resultadosVotos.Acta.COD_USUARIO = usuario.COD_USUARIO;
             Respuesta respuesta = servicioActa.ActualizarVotosActa(resultadosVotos);
-            ViewBag.Validaciones = string.Format("Name: {0} {1}", "Hola desde el Controlador", "Jhairo Rivera");
             if (respuesta == null)
             {
                 ModelState.AddModelError(string.Empty, "Existió un error al ingresar los resultados.");
             }
-            return  RedirectPreserveMethod("ByPass?textoBuscar=39003");
-
+            return RedirectPreserveMethod("ByPass?textoBuscar="+resultadosVotos.Acta.COD_JUNTA);
         }
     }
 }

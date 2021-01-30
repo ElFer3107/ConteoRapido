@@ -40,7 +40,8 @@ namespace CoreCRUDwithORACLE.Servicios
                                                     FROM RESULTADOS R, ACTA A, CANDIDATO C
                                                     WHERE R.COD_JUNTA = A.COD_JUNTA
                                                     AND R.COD_CANDIDATO = C.COD_CANDIDATO
-                                                    AND A.COD_JUNTA = {0}";
+                                                    AND A.COD_JUNTA = {0} 
+                                                    ORDER BY 5";
 
         private string consultaResultadosActa = @"SELECT P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, 
                                                     Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA || J.SEXO AS JUNTA,
@@ -439,7 +440,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.CommandType = CommandType.Text;
                         codigoVerificacion = _helper.EncodePassword(acta.COD_USUARIO + acta.JUNTA + DateTime.Now.ToString() + acta.VOT_JUNTA);
                         cmd.CommandText = string.Format(actualizarVotosActa, acta.VOT_JUNTA, acta.BLA_JUNTA, acta.NUL_JUNTA,
-                                                        DateTime.Now.ToString(), 1, 1, acta.COD_USUARIO, 1, codigoVerificacion,
+                                                        DateTime.Now.ToString(), acta.NOV_ACTA, 1, acta.COD_USUARIO, 1, codigoVerificacion,
                                                         acta.COD_JUNTA, acta.COD_USUARIO);
                         
                         int resultadoActa = cmd.ExecuteNonQuery();

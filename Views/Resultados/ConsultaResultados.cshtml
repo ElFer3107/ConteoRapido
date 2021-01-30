@@ -9,44 +9,24 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <form asp-action="ConsultaResultados" method="get">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-actions no-color" style="display:inline-block">
-        Ingrese Junta: <input type="number" class="form-control" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
-        <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
+    <div class="row">
+        <div class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
+            <input type="number" placeholder="Ingrese Junta" class="form-control" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+        </div>
+        <div  class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
+            <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
+        </div>
     </div>
+    
 </form>
-<script>
-
-    document.querySelector('#frmSaveVotos').onsubmit = function (e) {
-
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this imaginary file!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: '#DD6B55',
-            confirmButtonText: 'Yes, I am sure!',
-            cancelButtonText: "No, cancel it!",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        },
-            function (isConfirm) {
-
-                if (isConfirm) {
-                    swal("Shortlisted!", "Candidates are successfully shortlisted!", "success");
-
-                } else {
-                    swal("Cancelled", "Your imaginary file is safe :)", "error");
-                    e.preventDefault();
-                }
-            });
-    };
-</script>
 @if (Model != null)
 {
     @Html.ValidationSummary(true)
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="ConsultaResultados" id="frmSaveVotos" name="frmSaveVotos"  method="post">
+            @using (Html.BeginForm("ConsultaResultados", "Resultados", FormMethod.Post, new { @id = "Form1" }))
+            {
+                @*<form asp-action="ConsultaResultados" id="frmSaveVotos" name="frmSaveVotos"  method="post">*@
                 <table id="ActaCabecera" class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -124,9 +104,12 @@
                         <div class="container">
 
                             @*Params Hidden*@
+                            <input id="smsOK" name="smsOK" value="@ViewBag.Success" hidden />
+                            <input id="votoCandidatos" value="@ViewBag.CodCandidatos" hidden />
                             @Html.HiddenFor(modelItem => Model.Acta.TOT_ELECTORES)
                             @Html.HiddenFor(modelItem => Model.Acta.COD_JUNTA)
                             @Html.HiddenFor(modelItem => Model.Acta.JUNTA)
+                            @Html.HiddenFor(modelItem => Model.Acta.NOV_ACTA)
                             <input name="Resultados" hidden />
                             @foreach (var item in Model.Resultados)
                             {
@@ -134,32 +117,32 @@
                                 <div class="row">
                                     <div class="form-group col-sm-12 col-md-6 col-lg-4">
                                         <div class="col-sm-12 col-md-12 col-lg-12">
-                                            @Html.LabelFor(m => item.Orden)
+                                            @*@Html.LabelFor(m => item.Orden)*@
                                         </div>
                                         <div class="col-sm-12 col-md-12 col-lg-12">
-                                            <input asp-for="@(item.Orden)" type="text" name="_Orden" style="width:auto" class="form-control" readonly />
+                                            <input asp-for="@(item.Orden)" type="text" name="_Orden" style="height: 45px" class="form-control" readonly />
                                             @*@Html.EditorFor(m => item.Orden, new { @class = "form-control", @readonly = "true" })*@
                                             @Html.ValidationMessageFor(m => item.Orden)
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-12 col-md-6 col-lg-4">
                                         <div class="col-sm-12 col-md-12 col-lg-12">
-                                            @Html.LabelFor(m => item.Candidato)
+                                            @*@Html.LabelFor(m => item.Candidato)*@
                                         </div>
                                         <div class="col-sm-12 col-md-12 col-lg-12">
-                                            <input asp-for="@(item.Candidato)" name="_Candidato" class="form-control" readonly />
+                                            <input asp-for="@(item.Candidato)" name="_Candidato" style="height: 45px" class="form-control" readonly />
                                             @*@Html.EditorFor(m => item.Candidato, new { @class = "form-control", @readonly = "true" })*@
                                             @Html.ValidationMessageFor(m => item.Candidato)
                                         </div>
                                     </div>
                                     <div class="form-group col-sm-12 col-md-6 col-lg-4">
                                         <div class="col-sm-12 col-md-12 col-lg-12">
-                                            @Html.LabelFor(m => item.VOTOS)
+                                            @*@Html.LabelFor(m => item.VOTOS)*@
                                         </div>
                                         <div class="col-sm-12 col-md-12 col-lg-12">
                                             @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0", @maxlength="3" })*@
                                             @*@Html.EditorFor(m => item.VOTOS, new { @value = "3", @maxlength = "3" })*@
-                                            <input asp-for="@(item.VOTOS)" type="number" name="_Votos" class="form-control" maxlength="3" />
+                                            <input asp-for="@(item.VOTOS)" type="number" id="@item.Cod_Candidato" tabindex="" style="height: 45px" name="_Votos" class="form-control" maxlength="3" />
                                             @Html.ValidationMessageFor(m => item.VOTOS)
                                         </div>
                                     </div>
@@ -170,10 +153,11 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" value="Guardar" class="btn btn-primary" />
+                    <input type="button" id="btnSave" value="Guardar" class="btn btn-primary" />
                     @*<button type="button" value="Guardar" id="btnSaveVotos" name="btnSavesVotos" onclick="clickME()" class="btn btn-primary">Guardar</button>*@
                 </div>
-            </form>
+                @*</form>*@
+            }
         </div>
     </div>
 }
@@ -181,6 +165,107 @@
     <a asp-controller="Home" asp-action="Index">Regresar al listado</a>
 </div>
 
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    //function salta(id) {
+    //    const idsCandidatos = $('#votoCandidatos').val().split('|');
+    //    let _id = 0;
+    //    for (var i = 0; i < idsCandidatos.length; i++) {
+    //        if (idsCandidatos[i] == id) {
+    //            _id = idsCandidatos[i + 1];
+    //            $('#' + _id).focus();
+    //            break;
+    //        }
+    //    }
+    //}
+    function validaciones() {
+        let sms = '';
+        //novedad = Val2 = 1, Val2 y Val3 = 2, Val5 = 3
+        let totCandidatos = 0;
+        //Variables
+        const totSufragantes = $('#Acta_VOT_JUNTA').val() != '' ? parseInt($('#Acta_VOT_JUNTA').val()) : 0;
+        const totElectores = $('#Acta_TOT_ELECTORES').val() != '' ? parseInt($('#Acta_TOT_ELECTORES').val()) : 0;
+        const nulos = $('#Acta_NUL_JUNTA').val() != '' ? parseInt($('#Acta_NUL_JUNTA').val()) : 0;
+        const blancos = $('#Acta_BLA_JUNTA').val() != '' ? parseInt($('#Acta_BLA_JUNTA').val()) : 0;
+        const idsCandidatos = $('#votoCandidatos').val().split('|');
+        for (var i = 0; i < idsCandidatos.length; i++) {
+            totCandidatos += parseInt($('#' + idsCandidatos[i]).val());
+        }
+        //Validacion 1: Total Sufragantes > 0
+        if (totSufragantes == 0) {
+            sms += ' El total de sufragantes debe ser mayor a 0 \n';
+        }
+        //Validacion 2: Total Sufragantes <= Total Electores + 8
+        if (totSufragantes > totElectores + 8) {
+            sms += ' El total de sufragantes es mayor al total de electores + 8 \n';
+            $('#Acta_NOV_ACTA').val('1');
+        }
+        //Validacion 3: Blancos + Nulos + Total Candidatos >= Total Sufragrantes - 1%
+        if (nulos + blancos + totCandidatos < (totSufragantes - parseInt((totSufragantes * 0.01))) ) {
+            sms += ' El total de votos: blancos + nulos + válidos no está dentro del umbral(total de sufragantes - total de sufragantes * 1%) \n';
+            $('#Acta_NOV_ACTA').val('2');
+        }
+        //Validacion 4: Blancos + Nulos + Total Candidatos <= Total Sufragrantes + 1%
+        if (nulos + blancos + totCandidatos > (totSufragantes + parseInt((totSufragantes * 0.01))) ) {
+            sms += ' El total de votos: blancos + nulos + válidos no está dentro del umbral(total de sufragantes + total de sufragantes * 1%) \n';
+            $('#Acta_NOV_ACTA').val('2');
+        }
+        //Validacion 5: Total de algún Candidato <= Total Validos
+        for (var i = 0; i < idsCandidatos.length; i++) {
+            if (parseInt($('#' + idsCandidatos[i]).val()) > (totSufragantes + parseInt((totSufragantes * 0.01)) - blancos - nulos) ) {
+                sms += 'Los votos de algún candidato es mayor al total se Sufragantes + total sufragantes * 1% - blancos - nulos';
+                $('#Acta_NOV_ACTA').val('3');
+                break;
+            }
+        }
+        return sms;
+    }
+    $(document).ready(function () {
+        $("#btnSave").click(function () {
+            //const validaciones = validaciones();
+            swal({
+                title: validaciones().length  > 0 ? "Existen las siguientes novedades. Desea continuar?" : "No existen novedades en la información ingresada. Desea Continuar?",
+                text: validaciones().length > 0 ? validaciones() : "",
+                icon: validaciones().length > 0 ? "warning" : "info",
+                buttons: [
+                    'Cancelar',
+                    'Continuar'
+                ],
+                dangerMode: false,
+            }).then(function (isConfirm) {
+                if (isConfirm) {
+                    const totSufragantes = $('#Acta_VOT_JUNTA').val() != '' ? parseInt($('#Acta_VOT_JUNTA').val()) : 0;
+                    if (totSufragantes > 0) {
+                        $("#Form1").submit();
+                    } else {
+                        swal("Cancelado", "No se puede guardar la información. El total de sufragantes tiene que ser mayor a 0", "error");
+                    }
+                } else {
+                    swal("Cancelado", "No se ha guardado la información", "error");
+                }
+            });
+        });
+        if ($('#smsOK').val() == '1') {
+            swal({
+                title: "Se ha guardado la información de forma correcta",
+                text: "",
+                icon: 'success'
+            }).then(function () {
+                window.location.href = '/Resultados/ConsultaResultados/';
+            });
+        } else if ($('#smsOK').val() == '2') {
+            swal({
+                title: "Ya se ha ingresado información en esta junta",
+                text: "",
+                icon: 'warning'
+            }).then(function () {
+                window.location.href = '/Resultados/ConsultaResultados/';
+            });
+        }
+        //Tab Votos
+       
+    });
+</script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
