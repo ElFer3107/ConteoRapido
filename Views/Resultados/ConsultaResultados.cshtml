@@ -1,31 +1,52 @@
 ﻿@model CoreCRUDwithORACLE.Models.ResultadosVotos
-
 @{
     ViewData["Title"] = "ConsultaResultados";
 }
 
 <h1>Consulta de Resultados</h1>
 
-
 <hr />
-
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <form asp-action="ConsultaResultados" method="get">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-actions no-color">
-        <p>
-            Ingrese Junta: <input type="text" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
-            <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
-            @*<a asp-action="Index">Listado Completo</a>*@
-        </p>
+    <div class="form-actions no-color" style="display:inline-block">
+        Ingrese Junta: <input type="number" class="form-control" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+        <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
     </div>
 </form>
+<script>
 
+    document.querySelector('#frmSaveVotos').onsubmit = function (e) {
+
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this imaginary file!",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            confirmButtonText: 'Yes, I am sure!',
+            cancelButtonText: "No, cancel it!",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        },
+            function (isConfirm) {
+
+                if (isConfirm) {
+                    swal("Shortlisted!", "Candidates are successfully shortlisted!", "success");
+
+                } else {
+                    swal("Cancelled", "Your imaginary file is safe :)", "error");
+                    e.preventDefault();
+                }
+            });
+    };
+</script>
 @if (Model != null)
 {
     @Html.ValidationSummary(true)
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="ConsultaResultados" method="post">
+            <form asp-action="ConsultaResultados" id="frmSaveVotos" name="frmSaveVotos"  method="post">
                 <table id="ActaCabecera" class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -94,7 +115,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">Información Votos</h3>
@@ -103,38 +123,43 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="container">
 
+                            @*Params Hidden*@
+                            @Html.HiddenFor(modelItem => Model.Acta.TOT_ELECTORES)
+                            @Html.HiddenFor(modelItem => Model.Acta.COD_JUNTA)
+                            @Html.HiddenFor(modelItem => Model.Acta.JUNTA)
+                            <input name="Resultados" hidden />
                             @foreach (var item in Model.Resultados)
                             {
+                                <input asp-for="@(item.Cod_Candidato)" type="text" name="_CodCandidato" hidden />
                                 <div class="row">
-                                    <div class="form-group">
-                                        <div class="col-md-5">
+                                    <div class="form-group col-sm-12 col-md-6 col-lg-4">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
                                             @Html.LabelFor(m => item.Orden)
                                         </div>
-                                        <div class="col-md-7 ">
-                                            <input asp-for="@(item.Orden)" type="text" readonly />
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input asp-for="@(item.Orden)" type="text" name="_Orden" style="width:auto" class="form-control" readonly />
                                             @*@Html.EditorFor(m => item.Orden, new { @class = "form-control", @readonly = "true" })*@
                                             @Html.ValidationMessageFor(m => item.Orden)
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <div class="col-md-5">
+                                    <div class="form-group col-sm-12 col-md-6 col-lg-4">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
                                             @Html.LabelFor(m => item.Candidato)
                                         </div>
-                                        <div class="col-md-7">
-                                            <input asp-for="@(item.Candidato)" readonly />
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <input asp-for="@(item.Candidato)" name="_Candidato" class="form-control" readonly />
                                             @*@Html.EditorFor(m => item.Candidato, new { @class = "form-control", @readonly = "true" })*@
                                             @Html.ValidationMessageFor(m => item.Candidato)
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <div class="col-md-5">
-                                            @*@Html.LabelFor(m => item.VOTOS)*@
-
+                                    <div class="form-group col-sm-12 col-md-6 col-lg-4">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            @Html.LabelFor(m => item.VOTOS)
                                         </div>
-                                        <div class="col-md-7">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
                                             @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0", @maxlength="3" })*@
-                                            @*@Html.EditorFor(m => m.item.VOTOS, new { @value="3", @maxlength="3" } )*@
-                                            <input asp-for="@(item.VOTOS)" type="text" maxlength="3" />
+                                            @*@Html.EditorFor(m => item.VOTOS, new { @value = "3", @maxlength = "3" })*@
+                                            <input asp-for="@(item.VOTOS)" type="number" name="_Votos" class="form-control" maxlength="3" />
                                             @Html.ValidationMessageFor(m => item.VOTOS)
                                         </div>
                                     </div>
@@ -146,6 +171,7 @@
 
                 <div class="form-group">
                     <input type="submit" value="Guardar" class="btn btn-primary" />
+                    @*<button type="button" value="Guardar" id="btnSaveVotos" name="btnSavesVotos" onclick="clickME()" class="btn btn-primary">Guardar</button>*@
                 </div>
             </form>
         </div>

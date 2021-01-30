@@ -44,7 +44,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
         private string consultaResultadosActa = @"SELECT P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, 
                                                     Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA || J.SEXO AS JUNTA,
-                                                    A.COD_JUNTA, A.COD_USUARIO,  VOT_JUNTA,BLA_JUNTA,NUL_JUNTA, A.EST_ACTA    
+                                                    A.COD_JUNTA, A.COD_USUARIO,  VOT_JUNTA,BLA_JUNTA,NUL_JUNTA, J.NUMELE_JUNTA, A.EST_ACTA    
                                                     FROM PROVINCIA P, CANTON C, PARROQUIA Q , ZONA Z, JUNTA J, ACTA A
                                                     WHERE J.COD_ZONA=Z.COD_ZONA
                                                     AND Z.COD_PARROQUIA=Q.COD_PARROQUIA
@@ -62,15 +62,14 @@ namespace CoreCRUDwithORACLE.Servicios
                                         SET    VOT_JUNTA             = {0},
                                                BLA_JUNTA             = {1},
                                                NUL_JUNTA             = {2},
-                                               FEC_JUNTA             = to_date('{3}', 'dd/mm/yyyy hh24:mi:ss'),
+                                               FEC_JUNTA             = sysdate,
                                                NOV_ACTA              = {4},
                                                TIPO_DOCUMENTO        = {5},
                                                COD_USUARIO_DIGITADOR = {6},
                                                EST_ACTA              = {7},
-                                               FEC_TRANSMISION       = CURRENT_DATE,
+                                               FEC_TRANSMISION       = sysdate,
                                                COD_VERRESULTADOS     = '{8}'
                                            WHERE COD_JUNTA             = {9} AND
-                                                COD_USUARIO           ={10} AND
                                                 EST_ACTA             = 0";
 
         private string actualizaResultado = @"UPDATE CONTEORAPIDO2021.RESULTADOS
@@ -356,6 +355,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                     PARROQUIA = Convert.ToString(odr["NOM_PARROQUIA"]),
                                     ZONA = Convert.ToString(odr["NOM_ZONA"]),
                                     JUNTA = Convert.ToString(odr["JUNTA"]),
+                                    TOT_ELECTORES = Convert.ToInt32(odr["NUMELE_JUNTA"]),
                                     Estado_Acta = Convert.ToInt32(odr["EST_ACTA"])
                                 };
                             }
@@ -440,13 +440,15 @@ namespace CoreCRUDwithORACLE.Servicios
                         codigoVerificacion = _helper.EncodePassword(acta.COD_USUARIO + acta.JUNTA + DateTime.Now.ToString() + acta.VOT_JUNTA);
                         cmd.CommandText = string.Format(actualizarVotosActa, acta.VOT_JUNTA, acta.BLA_JUNTA, acta.NUL_JUNTA,
                                                         DateTime.Now.ToString(), 1, 1, acta.COD_USUARIO, 1, codigoVerificacion,
-                                                        acta.JUNTA, acta.COD_USUARIO);
+                                                        acta.COD_JUNTA, acta.COD_USUARIO);
                         
                         int resultadoActa = cmd.ExecuteNonQuery();
                         if (resultadoActa > 0)
                         {
                             foreach (var voto in resultados.Resultados)
                             {
+                                //codigoVerificacionv = _helper.EncodePassword( DateTime.Now.ToString() + voto.Candidato);
+                                //cmd.CommandText = string.Format(actualizaResultado, codigoVerificacionv, acta.COD_JUNTA);
                                 codigoVerificacionv = _helper.EncodePassword(voto.VOTOS + voto.Cod_Candidato + DateTime.Now.ToString() + voto.Candidato);
                                 cmd.CommandText = string.Format(actualizaResultado, voto.VOTOS, codigoVerificacionv, acta.COD_JUNTA, voto.Cod_Candidato);
                                 int resultadoVoto = cmd.ExecuteNonQuery();
