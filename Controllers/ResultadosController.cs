@@ -18,10 +18,6 @@ namespace CoreCRUDwithORACLE.Controllers
             servicioActa = _servicioActa;
             servicioUsuario = _servicioUsuario;
         }
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
 
         public IActionResult ConsultaResultados(string textoBuscar)
         {
@@ -72,7 +68,6 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "Existió un error al ingresar los resultados.");
                 return View();
             }
-            //= User.Claims.FirstOrDefault(x => x.Type == "Id").Value;
             return View(respuesta);
 
         }

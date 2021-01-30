@@ -20,9 +20,6 @@ namespace CoreCRUDwithORACLE.Models
         [DisplayName("ROL")]
         public int codRol { get; set; }
         public List<SelectListItem> roles { get; set; }
-        //public List<SelectListItem> cantones { get; set; }
-        //public List<SelectListItem> parroquias { get; set; }
-        //public List<SelectListItem> zonas { get; set; }
 
     }
 }

@@ -20,8 +20,6 @@ namespace CoreCRUDwithORACLE.Models
         public string CEDULA { get; set; }
         public string DIGITO { get; set; }
         public string LOGEO { get; set; }
-        //[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$",
-        // ErrorMessage = "Password must meet requirements")]090
         [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo clave debe tener mínimo 8 dígitos")]
         [Required(ErrorMessage = "La clave debe ser ingresada.")]
         public string CLAVE { get; set; }

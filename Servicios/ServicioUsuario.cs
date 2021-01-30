@@ -31,7 +31,6 @@ namespace CoreCRUDwithORACLE.Servicios
                                            WHERE US.COD_PROVINCIA = PR.COD_PROVINCIA
                                            AND US.COD_ROL = RO.COD_ROL
                                            AND CED_USUARIO = {0}";
-        //AND EST_USUARIO = 1";
 
         private string consultaLogin = @"select count(*)
                                         from USUARIO
@@ -78,7 +77,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
         public IEnumerable<Usuario> GetUsuarios(int codigoRol, int codigoProvincia)
         {
-            //List<Usuario> usuariosPrevios = null;
+            
             List<Usuario> usuarios = null;
 
             using (OracleConnection con = new OracleConnection(_conn))
@@ -89,9 +88,7 @@ namespace CoreCRUDwithORACLE.Servicios
                     {
                         con.Open();
                         cmd.Connection = con;
-                        //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
-                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
                         switch (codigoRol)
                         {
                             case 1:
@@ -103,9 +100,6 @@ namespace CoreCRUDwithORACLE.Servicios
                             case 3:
                                 consultaUsuarios += " AND US.COD_ROL = 4 AND US.COD_PROVINCIA = " + codigoProvincia;
                                 break;
-                            //case 4:
-                            //    consultaUsuarios = consultaUsuarios + " AND US.COD_ROL = 4 ";
-                            //    break;
                             case 5:
                                 consultaUsuarios += " AND US.COD_ROL = 4";
                                 break;
@@ -131,7 +125,6 @@ namespace CoreCRUDwithORACLE.Servicios
                                     ROL = Convert.ToString(odr["DES_ROL"]),
                                     COD_USUARIO = Convert.ToInt32(odr["COD_USUARIO"]),
                                     NOMBRE = Convert.ToString(odr["nom_usuario"]),
-                                    //CLAVE = Convert.ToString(odr["CLA_USUARIO"]),
                                     TELEFONO = Convert.ToString(odr["TEL_USUARIO"]),
                                     MAIL = Convert.ToString(odr["MAI_USUARIO"]),
                                     LOGEO = Convert.ToString(odr["LOG_USUARIO"]),
@@ -234,8 +227,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             //cmd.CommandType = CommandType.StoredProcedure;
                             cmd.CommandType = CommandType.Text;
                             //cmd.CommandText = "CONSULTA_AUTENTICACION_USUARIO";
-
-                            //clave = _helper.EncodePassword(usuarioActualizado.CLAVE); 
+ 
                             cmd.CommandText = string.Format(actualizaUsuario, usuarioActualizado.CODIGO_ROL, usuarioActualizado.LOGEO,
                                                             usuarioActualizado.CEDULA, usuarioActualizado.DIGITO, usuarioActualizado.NOMBRE,
                                                             usuarioActualizado.MAIL, usuarioActualizado.ESTADO ? "1" : "0", usuarioActualizado.CODIGO_PROVINCIA,
@@ -251,7 +243,6 @@ namespace CoreCRUDwithORACLE.Servicios
                         catch (Exception ex)
                         {
                             throw ex;
-                            //return usuario = null;
                         }
                         finally
                         {
@@ -283,9 +274,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "CONSULTA_AUTENTICACION_USUARIO";
-                        //cmd.BindByName = true;
                         clave = _helper.EncodePassword(iPass);
-                        //cmd.CommandText = string.Format(consultaLogin, iMail, clave);
                         cmd.CommandText = string.Format(consultaUsuario, iMail, clave);
 
                         OracleDataReader odr = cmd.ExecuteReader();
@@ -308,7 +297,6 @@ namespace CoreCRUDwithORACLE.Servicios
                     catch (Exception ex)
                     {
                         return logeo;
-                        //throw ex;
                     }
                     finally
                     {
@@ -349,18 +337,11 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.Parameters.Add("I_MAIL_USUARIO", OracleDbType.Varchar2, iMail, ParameterDirection.Input);
                         cmd.Parameters.Add("I_CLAVE_USUARIO", OracleDbType.Varchar2, clave, ParameterDirection.Input);
                         cmd.Parameters.Add("o_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-                        //var result = cmd.ExecuteScalar();
+                        
                         OracleDataReader odr = cmd.ExecuteReader();
                         if (odr.HasRows)
                         {
-                            //while (odr.Read())
-                            //{
-                            //    //COD_USUARIO, EST_USUARIO, EST_CLA_USUARIO, NIV_USUARIO
-                            //    usuario.COD_USUARIO = Convert.ToInt32(odr["cod_usuario"]);
-                            //    usuario.EST_USUARIO = Convert.ToString(odr["EST_USUARIO"]);
-                            //    usuario.EST_CLA_USUARIO = Convert.ToString(odr["EST_CLA_USUARIO"]);
-                            //    usuario.NIV_USUARIO = Convert.ToString(odr["NIV_USUARIO"]);
-                            //}
+                            
                         }
                     }
                     catch (Exception ex)
@@ -383,7 +364,6 @@ namespace CoreCRUDwithORACLE.Servicios
         public async Task<int> IngresaUsuario(UsuarioResponse usuario)
         {
             int respuesta = 0;
-            //_logger = new ILogger();
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -427,7 +407,6 @@ namespace CoreCRUDwithORACLE.Servicios
 
                         _logger.LogWarning("Error: " + ex.Message);
                         return respuesta;
-                        //throw ex;
                     }
                     finally
                     {
@@ -494,15 +473,11 @@ namespace CoreCRUDwithORACLE.Servicios
 
         public int EncerarBase()
         {
-            //string cedula = "171496036";
-            string encerarBase1 = @"update acta set vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0, cormesa_junta=0, correcinto_junta=0";
-            string encerarBase2 = @"delete from usuario where cod_usuario>1";
+            string encerarBase1 = @"update acta set vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0";
             string encerarBase3 = @"delete from asistencia";
             string encerarBase4 = @"update  resultados set  fin_resultado=0, cod_vervotos = ''";
             string encerarBase5 = @"update configuracion set est_configuracion = 0";
-            string encerarBase6 = @"insert into configuracion values (9,'Segundo Simulacro','0.9','24/01/2021',1)";
-
-
+            string encerarBase6 = @"insert into configuracion values (10,'Prueba Interna','1.0','28/01/2021',1)";
 
             using (OracleConnection con = new OracleConnection(_conn))
             {
@@ -524,6 +499,8 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.Parameters.Add("O_CURSOR", OracleDbType.RefCursor).Direction = ParameterDirection.Output;
                         int odr = cmd.ExecuteNonQuery();
 
+                        cmd.CommandText = encerarBase1;
+                        odr = cmd.ExecuteNonQuery();
 
                         cmd.CommandText = encerarBase3;
                         odr = cmd.ExecuteNonQuery();

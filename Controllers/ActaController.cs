@@ -21,22 +21,6 @@ namespace CoreCRUDwithORACLE.Controllers
             servicioActa = _servicioActa;
             servicioUsuario = _servicioUsuario;
         }
-        // GET: ActaController
-        //public ActionResult Index()
-        //{
-        //    if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-        //        return RedirectToAction("Logout", "Account");
-
-        //    IEnumerable<ActaResponse> actas = servicioActa.GetActas(Convert.ToInt32(HttpContext.Session.GetString("cod_provincia")));
-
-        //    if (actas == null)
-        //    {
-        //        ModelState.AddModelError(string.Empty, "No existen actas");
-        //        return View();
-        //    }
-
-        //    return View(actas);
-        //}
 
         public IActionResult Index(string sortOrder, string currentFilter, 
                                                 string textoBuscar, int? pageNumber)
@@ -113,9 +97,9 @@ namespace CoreCRUDwithORACLE.Controllers
 
             if (!string.IsNullOrEmpty(mensaje))
                 ViewBag.Message = mensaje;
-            //return View(PaginatedList<ActaResponse>.CreateAsync(actas.AsQueryable(), pageNumber ?? 1, pageSize));
+
             return View(PaginatedList<ActaResponse>.Create(actas.AsQueryable(), pageNumber ?? 1, pageSize));
-            //return View(actas.ToList());
+            
         }
 
         // GET: ActaController/Details/5
@@ -146,18 +130,6 @@ namespace CoreCRUDwithORACLE.Controllers
             }
         }
 
-        // GET: ActaController/Edit/5
-        //public ActionResult Edit(int id)
-        //public ActionResult Edit(string searchString)
-        //{
-        //    //Acta acta = servicioActa.GetActa(id);
-        //    if (!String.IsNullOrEmpty(searchString))
-        //    {
-        //        Acta acta = servicioActa.GetActa(Convert.ToInt32(searchString));
-        //        return View(acta);
-        //    }
-        //    return View();
-        //}
         public ActionResult Edit(string id)
         {
             if (!User.Identity.IsAuthenticated)
@@ -165,7 +137,7 @@ namespace CoreCRUDwithORACLE.Controllers
 
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
                 return RedirectToAction("Logout", "Account");
-            //Acta acta = servicioActa.GetActa(id);
+
             if (!String.IsNullOrEmpty(id))
             {
                 ActaResponse acta = servicioActa.GetActa(Convert.ToInt32(id));
@@ -244,25 +216,5 @@ namespace CoreCRUDwithORACLE.Controllers
             }
         }
 
-        
-        // POST: ActaController/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id)
-        //{
-        //    try
-        //    {
-        //        int respuesta = servicioActa.ActualizaAsignacion(id);
-        //        if (respuesta > 0)
-        //            return RedirectToAction(nameof(Index));
-
-        //        ModelState.AddModelError(string.Empty, "Problemas para quitar la asignación revise la información.");
-        //        return View();
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
     }
 }
