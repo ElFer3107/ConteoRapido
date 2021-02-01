@@ -11,8 +11,8 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8">
-                   
+                <div class="col-md-12">
+
                     <div class="card card-primary">
                         <div class="card-header">
                             <h3 class="card-title">Cambio de clave</h3>
@@ -39,27 +39,39 @@
                                 <div class="form-group">
                                     <table>
                                         <tr>
-                                            <th>
-                                                <input type="submit" value="Guardar" class="btn btn-primary" />
-                                            </th>
-                                            <th>
-                                                <a asp-controller="Account" asp-action="Logout" class="btn btn-block btn-danger">Salir</a>
-                                            </th>
-                                            
+                                            @if (Model.LOGEO != "OK")
+                                            {
+                                                <th>
+                                                    <input type="submit" value="Guardar" class="btn btn-primary" />
+                                                </th>
+                                                <th>
+                                                    <a asp-controller="Account" asp-action="Logout" class="btn btn-block btn-danger">Salir</a>
+                                                </th>
+                                            }
+                                            @if (Model.LOGEO == "OK")
+                                            {
+                                                <th>
+
+                                                </th>
+                                                <th>
+                                                    <a asp-controller="Account" asp-action="LogIn" class="btn btn-block btn-danger">iniciar sesión</a>
+                                                </th>
+                                            }
                                         </tr>
+
                                     </table>
-                                    
-                                    
+
+
                                 </div>
                             </form>
                         </div>
                     </div>
-</div>
                 </div>
             </div>
-       </section>
-       </div>
+        </div>
+    </section>
+</div>
 
-                    @section Scripts {
-                        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-                    }
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

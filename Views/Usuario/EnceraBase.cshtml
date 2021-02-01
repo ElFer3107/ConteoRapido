@@ -1,0 +1,121 @@
+﻿
+@model CoreCRUDwithORACLE.Models.Enceramiento
+
+@{ ViewData["Title"] = "EnceraBase"; }
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Conteo rápido| CNE</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    @*<link rel="stylesheet" href="~/FrontEnd/plugins/fontawesome-free/css/all.min.css">*@
+    <link href="~/FrontEnd/plugins/fontawesome-free/css/all.css" rel="stylesheet" />
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- DataTables -->
+    @*<link rel="stylesheet" href="~/FrontEnd/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+        <link href="~/FrontEnd/plugins/datatables-bs4/css/dataTables.bootstrap4.css" rel="stylesheet" />
+        <link rel="stylesheet" href="~/FrontEnd/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">*@
+    <link href="~/FrontEnd/plugins/datatables-bs4/css/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link href="~/FrontEnd/plugins/datatables-responsive/css/responsive.bootstrap4.css" rel="stylesheet" />
+    <!-- Theme style -->
+    @*<link rel="stylesheet" href="~/FrontEnd/dist/css/adminlte.min.css">*@
+    <link href="~/FrontEnd/dist/css/adminlte.css" rel="stylesheet" />
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+
+<div id="wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Proceso de Enceramiento</h1>
+
+                    <table>
+                        <tr>
+                            <th>
+                                <a asp-action="Index" class="btn btn-block btn-info">  Regresar   </a>
+                            </th>
+                            <th>
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-block btn-secondary">  Ir al Inicio  </a>
+                            </th>
+                            <th>
+                                <a asp-controller="Account" asp-action="Logout" class="btn btn-block btn-danger">Salir</a>
+                            </th>
+                        </tr>
+                    </table>
+
+
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Encerar Base de Datos</h3>
+
+                        </div>
+                        <div class="card-body">
+                            Version Actual Sistema: @ViewBag.Detalle_Carga<br />
+                            <form method="post" action="EnceraBase">
+                                <input type="hidden" class="form-control" name="VER_PDF" value="1" />
+                                Detalle Proceso: <input type="text" class="form-control" name="DET_CONFIGURACION" id="txtNombre" /><br />
+                                Version del Sistema: <input type="text" class="form-control" name="VER_CONFIGURACION" id="txtVersion" /><br />
+                                <button type="submit" class="btn btn-primary">Encerar Base</button>
+
+                            </form>
+
+                            <h4>
+                                Resultado:
+                                Proceso: @ViewBag.Detalle
+                                Version: @ViewBag.VersionSistema
+
+                            </h4>
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <td>Registro Actas Enceradas</td>
+                                    <td>Registro Resultados Encerados</td>
+                                    <td>Registro Asistencia sin Encerar</td>
+                                </tr>
+                                <tr>
+                                    <td>@ViewBag.Acta</td>
+                                    <td>@ViewBag.Resultados</td>
+                                    <td>@ViewBag.Asistencia</td>
+                                </tr>
+                            </table>
+                            <h4>Mensaje: @ViewBag.Message</h4>
+
+                            <form method="post" action="EnceraBase">
+                                <input type="hidden" class="form-control" name="VER_PDF" value="2" />
+                                <input type="hidden" class="form-control" name="DET_CONFIGURACION" value="@ViewBag.Detalle" />
+                                <input type="hidden" class="form-control" name="VER_CONFIGURACION" value="@ViewBag.VersionSistema" />
+                                <button type="submit" class="btn btn-primary">Generar PDF</button>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- jQuery -->
+<script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables -->
+<script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<!-- AdminLTE App -->
+<script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/FrontEnd/dist/js/demo.js"></script>
+<!-- page script -->

@@ -42,8 +42,8 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
 
             IEnumerable<Usuario> usuarios = servicioUsuario.GetUsuarios(Convert.ToInt32(HttpContext.Session.GetString("cod_rol")),
                                                                     Convert.ToInt32(HttpContext.Session.GetString("cod_provincia")));
@@ -70,8 +70,8 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+           // if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+           //     return RedirectToAction("Logout", "Account");
 
             if (string.IsNullOrEmpty(id))
                 return RedirectToAction("Logout", "Account");
@@ -197,8 +197,17 @@ namespace CoreCRUDwithORACLE.Controllers
             try
             {
                 Usuario respuesta = servicioUsuario.ActualizaUsuario(usuario);
-                ViewBag.Message = "Usuario actualizado exitosamente!";
-                return RedirectToAction("Index");
+                if (respuesta==null)
+                {
+                    ViewBag.Message = "Cédula o correo no permitito (pertenecen a otro usuario)";
+                    return View(usuarioMod);
+                }                    
+                else
+                {
+                    ViewBag.Message = "Usuario actualizado exitosamente!";
+                    return RedirectToAction("Index");
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -214,8 +223,8 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+           // if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
 
             int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
             int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
@@ -312,11 +321,11 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
 
-            if (usuarionNew == null)
-                return RedirectToAction("Logout", "Account");
+           // if (usuarionNew == null)
+             //   return RedirectToAction("Logout", "Account");
 
             int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
             int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
@@ -410,11 +419,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(usuarionNew);
             }
 
+            // Usuario validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
             Usuario validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
 
             if (validacionUsuario != null)
             {
-                ModelState.AddModelError(string.Empty, "Ya existe un usuario con la cédula ingresada.");
+                ModelState.AddModelError(string.Empty, "Ya existe un usuario con la cédula o correo ingresada.");
                 return View(usuarionNew);
             }
 
@@ -444,18 +454,25 @@ namespace CoreCRUDwithORACLE.Controllers
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Existió un error al ingresar el usuario.");
+                if (usuario.CLAVE=="12345678" || usuario.CLAVE =="87654321")
+                { 
+                    ModelState.AddModelError(string.Empty, "La clave no puede ser números consecutivos");
+                }
+                else
+                    { 
+                    ModelState.AddModelError(string.Empty, "Existió un error al ingresar el usuario.");
+                }
                 return View(usuarionNew);
             }
         }
         [Route("Usuario/ActualizaClave/{cedula}")]
-        public ActionResult ActualizaClave(string cedula)
+        public ActionResult ActualizaClave(string cedula, string email)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
 
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
@@ -486,7 +503,28 @@ namespace CoreCRUDwithORACLE.Controllers
             Usuario usuario = null;
 
             usuario = servicioUsuario.ActualizaClave(usuarioNew, 0);
+            if ((usuario.LOGEO == "88") || (usuario.LOGEO == "99") || (usuario.LOGEO == "77") || (usuario.LOGEO == "33"))
+            {
+                string mesanje = string.Empty;
+                if (usuario.LOGEO == "33")
+                    mesanje = "Error, la clave no puede ser números consecutivos";
+                if (usuario.LOGEO == "77")
+                    mesanje = "No se actualizó ningún usuario";
+                if (usuario.LOGEO == "88")
+                    mesanje = "Error al actualizar en la base de datos";
+                if (usuario.LOGEO == "99")
+                    mesanje = "Error, la nueva clave no debe ser igual a la anterior.";
+                ModelState.AddModelError(string.Empty, mesanje);                
+                return View(usuarioNew);
+            }
+            else
+            {
 
+                ModelState.AddModelError(string.Empty, "Contraseña actualizada correctamente");
+                return View(usuarioNew);
+
+            }
+            /*
             if (usuario != null)
             {
                 mensaje = "Usuario actualizado exitosamente!";
@@ -497,20 +535,29 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No se pudo actualizar el usuario. Revise la clave.");
                 return View(usuarioNew);
             }
+            */
         }
         [Route("Usuario/AltaClave/{cedula}")]
         public ActionResult AltaClave(string cedula)
         {
-            if (!User.Identity.IsAuthenticated)
-                return RedirectToAction("Logout", "Account");
+            //if (!User.Identity.IsAuthenticated)
+            //    return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
+            string id = string.Empty;
 
             if (string.IsNullOrEmpty(cedula))
                 return RedirectToAction("Logout", "Account");
 
-            var id = protector.Unprotect(cedula); 
+            try
+            {
+                id = protector.Unprotect(cedula);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Logout", "Account");
+            } 
 
             Usuario usuario = servicioUsuario.GetUsuario(id);
 
@@ -525,8 +572,8 @@ namespace CoreCRUDwithORACLE.Controllers
         [HttpPost]
         public ActionResult AltaClave(Usuario usuarioAlta)
         {
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
 
             if (usuarioAlta == null)
                 return RedirectToAction("Logout", "Account");
@@ -538,39 +585,89 @@ namespace CoreCRUDwithORACLE.Controllers
 
             usuario = servicioUsuario.ActualizaClave(usuarioAlta, 1);
 
-            if (usuario != null)
+            if ((usuario.LOGEO == "88")|| (usuario.LOGEO=="99")|| (usuario.LOGEO == "77") || (usuario.LOGEO == "33"))
             {
-                ViewBag.Message = "Usuario actualizado exitosamente!";
-                return RedirectToAction("Logout", "Account");
+                string mesanje = string.Empty;
+                if (usuario.LOGEO == "33")
+                    mesanje = "Error, la clave no puede ser números consecutivos";
+                if (usuario.LOGEO == "77")
+                    mesanje = "No se actualizó ningún usuario";
+                if (usuario.LOGEO == "88")
+                    mesanje = "Error al actualizar en la base de datos";
+                if (usuario.LOGEO == "99")
+                    mesanje = "Error, la nueva clave no debe ser igual a la anterior.";
+                ModelState.AddModelError(string.Empty, mesanje);
+                return View(usuario);
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "No se pudo actualizar el usuario. Revise la contraseña.");
-                return View(usuarioAlta);
+
+                ModelState.AddModelError(string.Empty, "Contraseña actualizada correctamente");
+                return View(usuario);
+
             }
         }
-        public ActionResult EncerarBase()
+        public ActionResult EnceraBase(string DET_CONFIGURACION, string VER_CONFIGURACION, string VER_PDF)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-                return RedirectToAction("Logout", "Account");
+           // if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
+            //    return RedirectToAction("Logout", "Account");
+            String Detalle_Carga = "";
+            string version_carga = servicioUsuario.MuestraVersion();
+            ViewBag.Detalle_Carga = version_carga;
+            String Contr = VER_PDF;
+            String Detalle = DET_CONFIGURACION;
+            String Version = VER_CONFIGURACION;
+            String Acta = "";
+            String Resultados = "";
+            String Asistencia = "";
+            //return View();
 
-            int usuario = 0;
-
-            usuario = servicioUsuario.EncerarBase();
-
-            if (usuario>0)
+            if (Contr == "2")
             {
-                ViewBag.Message = "Base actualizado exitosamente!";
-                return RedirectToAction("Logout", "Account");
+                string dat = servicioUsuario.GeneraPDF();
+            }
+
+            //return View();
+            if ((Detalle is null) && (Version is null))
+            {
+                ViewBag.Detalle = "";
+                ViewBag.VersionSistema = "";
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "No se pudo actualizar la base.");
-                return View();
+                if (Contr == "1")
+                {
+                    String usuario = "";
+
+                    usuario = servicioUsuario.EncerarBase(Detalle, Version, Contr);
+
+                    char delimitador = ';';
+                    string[] valores = usuario.Split(delimitador);
+
+
+                    if ((Convert.ToInt32(valores[0]) > 0) && (Convert.ToInt32(valores[1]) > 0) && (Convert.ToInt32(valores[2]) == 0))
+                    {
+                        ViewBag.Message = "Base actualizado exitosamente!";
+                        //return RedirectToAction("Logout", "Account");
+                        ViewBag.Detalle = DET_CONFIGURACION;
+                        ViewBag.VersionSistema = VER_CONFIGURACION;
+                        ViewBag.Acta = valores[0];
+                        ViewBag.Resultados = valores[1];
+                        ViewBag.Asistencia = valores[2];
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "No se pudo actualizar la base.");
+                    }
+
+                }
+
             }
+            return View();
         }
+
     }
 }

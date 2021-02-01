@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System.IO;
 
 namespace CoreCRUDwithORACLE.Servicios
 {
@@ -31,17 +34,29 @@ namespace CoreCRUDwithORACLE.Servicios
                                            WHERE US.COD_PROVINCIA = PR.COD_PROVINCIA
                                            AND US.COD_ROL = RO.COD_ROL
                                            AND CED_USUARIO = {0}";
+        private string consultaUserx_CedMail = @"SELECT US.COD_USUARIO, PR.COD_PROVINCIA, PR.NOM_PROVINCIA, US.CED_USUARIO || US.DIG_USUARIO CEDULA, US.LOG_USUARIO,
+                                               US.TEL_USUARIO, US.NOM_USUARIO, RO.COD_ROL, RO.DES_ROL, US.EST_USUARIO, US.MAI_USUARIO, US.CLA_USUARIO
+                                           FROM USUARIO US, PROVINCIA PR, ROL RO
+                                           WHERE US.COD_PROVINCIA = PR.COD_PROVINCIA
+                                           AND US.COD_ROL = RO.COD_ROL
+                                           AND  (CED_USUARIO = '{0}' or  MAI_USUARIO ='{1})'";
+        private string consultaUserxMail = @"SELECT US.COD_USUARIO, PR.COD_PROVINCIA, PR.NOM_PROVINCIA, US.CED_USUARIO || US.DIG_USUARIO CEDULA, US.LOG_USUARIO,
+                                               US.TEL_USUARIO, US.NOM_USUARIO, RO.COD_ROL, RO.DES_ROL, US.EST_USUARIO, US.MAI_USUARIO, US.CLA_USUARIO
+                                           FROM USUARIO US, PROVINCIA PR, ROL RO
+                                           WHERE US.COD_PROVINCIA = PR.COD_PROVINCIA
+                                           AND US.COD_ROL = RO.COD_ROL
+                                           AND MAI_USUARIO = '{0}'";
 
         private string consultaLogin = @"select count(*)
                                         from USUARIO
                                         where MAI_USUARIO = '{0}'
                                         and CLA_USUARIO = '{1}'";
 
-        private string consultaUsuario = @"select COD_ROL, NOM_USUARIO, COD_PROVINCIA, EST_CLA_USUARIO, CED_USUARIO || DIG_USUARIO CEDULA
+        private string consultaUsuario = @"select COD_ROL, NOM_USUARIO, COD_PROVINCIA, EST_CLA_USUARIO, CED_USUARIO || DIG_USUARIO CEDULA, EST_USUARIO
                                         from USUARIO
                                         where MAI_USUARIO = '{0}'
                                         and CLA_USUARIO = '{1}'
-                                        and EST_USUARIO = 1";
+                                        ";
 
         private string consultaCodUsuario = @"SELECT MAX(COD_USUARIO) Codigo FROM USUARIO";
 
@@ -77,7 +92,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
         public IEnumerable<Usuario> GetUsuarios(int codigoRol, int codigoProvincia)
         {
-            
+
             List<Usuario> usuarios = null;
 
             using (OracleConnection con = new OracleConnection(_conn))
@@ -151,6 +166,118 @@ namespace CoreCRUDwithORACLE.Servicios
             return usuarios;
         }
 
+        public Usuario GetUsuarioXMail(string iMail)
+        {
+            Usuario usuario = null;
+
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    try
+                    {
+                        con.Open();
+                        cmd.Connection = con;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaUserxMail, iMail);
+                        cmd.BindByName = true;
+
+                        OracleDataReader odr = cmd.ExecuteReader();
+                        if (odr.HasRows)
+                        {
+                            usuario = new Usuario();
+                            while (odr.Read())
+                            {
+                                usuario.COD_USUARIO = Convert.ToInt32(odr["COD_USUARIO"]);
+                                usuario.CEDULA = Convert.ToString(odr["CEDULA"]);
+                                usuario.COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]);
+                                usuario.CLAVE = Convert.ToString(odr["CLA_USUARIO"]);
+                                usuario.ESTADO = (Convert.ToString(odr["EST_USUARIO"]) == "1" ? true : false);
+                                usuario.NOMBRE = Convert.ToString(odr["NOM_USUARIO"]);
+                                usuario.PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]);
+                                usuario.LOGEO = Convert.ToString(odr["LOG_USUARIO"]);
+                                usuario.COD_ROL = Convert.ToInt32(odr["COD_ROL"]);
+                                usuario.TELEFONO = Convert.ToString(odr["TEL_USUARIO"]);
+                                usuario.ROL = Convert.ToString(odr["DES_ROL"]);
+                                usuario.MAIL = Convert.ToString(odr["MAI_USUARIO"]);
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //return usuario;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+
+                }
+            }
+
+            return usuario;
+        }
+        public Usuario GetUsuarioXcedulaMail(string iCedula,string iMail)
+        {
+            Usuario usuario = null;
+
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    try
+                    {
+                        con.Open();
+                        cmd.Connection = con;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaUserx_CedMail, iCedula.Substring(0, 9),iMail);
+                        cmd.BindByName = true;
+
+                        OracleDataReader odr = cmd.ExecuteReader();
+                        if (odr.HasRows)
+                        {
+                            usuario = new Usuario();
+                            while (odr.Read())
+                            {
+                                usuario.COD_USUARIO = Convert.ToInt32(odr["COD_USUARIO"]);
+                                usuario.CEDULA = Convert.ToString(odr["CEDULA"]);
+                                usuario.COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]);
+                                usuario.CLAVE = Convert.ToString(odr["CLA_USUARIO"]);
+                                usuario.ESTADO = (Convert.ToString(odr["EST_USUARIO"]) == "1" ? true : false);
+                                usuario.NOMBRE = Convert.ToString(odr["NOM_USUARIO"]);
+                                usuario.PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]);
+                                usuario.LOGEO = Convert.ToString(odr["LOG_USUARIO"]);
+                                usuario.COD_ROL = Convert.ToInt32(odr["COD_ROL"]);
+                                usuario.TELEFONO = Convert.ToString(odr["TEL_USUARIO"]);
+                                usuario.ROL = Convert.ToString(odr["DES_ROL"]);
+                                usuario.MAIL = Convert.ToString(odr["MAI_USUARIO"]);
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //return usuario;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+
+                }
+            }
+
+            return usuario;
+        }
         public Usuario GetUsuario(string iCedula)
         {
             Usuario usuario = null;
@@ -212,8 +339,14 @@ namespace CoreCRUDwithORACLE.Servicios
             string telefono = usuarioActualizado.TELEFONO;
             Usuario usuario = null;
 
-            usuario = GetUsuario(usuarioActualizado.CEDULA);
+            //usuario = GetUsuario(usuarioActualizado.CEDULA);
+            usuario = GetUsuarioXMail(usuarioActualizado.MAIL);
+            if (usuario != null)
+            {
+                return usuario=null;
+            }
 
+            usuario = GetUsuario(usuarioActualizado.CEDULA);
             if (usuario != null)
             {
                 using (OracleConnection con = new OracleConnection(_conn))
@@ -227,7 +360,7 @@ namespace CoreCRUDwithORACLE.Servicios
                             //cmd.CommandType = CommandType.StoredProcedure;
                             cmd.CommandType = CommandType.Text;
                             //cmd.CommandText = "CONSULTA_AUTENTICACION_USUARIO";
- 
+
                             cmd.CommandText = string.Format(actualizaUsuario, usuarioActualizado.CODIGO_ROL, usuarioActualizado.LOGEO,
                                                             usuarioActualizado.CEDULA, usuarioActualizado.DIGITO, usuarioActualizado.NOMBRE,
                                                             usuarioActualizado.MAIL, usuarioActualizado.ESTADO ? "1" : "0", usuarioActualizado.CODIGO_PROVINCIA,
@@ -289,7 +422,8 @@ namespace CoreCRUDwithORACLE.Servicios
                                     COD_ROL = Convert.ToInt32(odr["COD_ROL"]),
                                     EST_CLAVE = Convert.ToInt32(odr["EST_CLA_USUARIO"]),
                                     CEDULA = Convert.ToString(odr["CEDULA"]),
-                                    NOMBRE = Convert.ToString(odr["NOM_USUARIO"])
+                                    NOMBRE = Convert.ToString(odr["NOM_USUARIO"]),
+                                    EST_USUARIO = Convert.ToInt32(odr["EST_USUARIO"])
                                 };
                             }
                         }
@@ -337,11 +471,11 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.Parameters.Add("I_MAIL_USUARIO", OracleDbType.Varchar2, iMail, ParameterDirection.Input);
                         cmd.Parameters.Add("I_CLAVE_USUARIO", OracleDbType.Varchar2, clave, ParameterDirection.Input);
                         cmd.Parameters.Add("o_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
-                        
+
                         OracleDataReader odr = cmd.ExecuteReader();
                         if (odr.HasRows)
                         {
-                            
+
                         }
                     }
                     catch (Exception ex)
@@ -363,7 +497,12 @@ namespace CoreCRUDwithORACLE.Servicios
 
         public async Task<int> IngresaUsuario(UsuarioResponse usuario)
         {
-            int respuesta = 0;
+            if (usuario.CLAVE == "12345678" || usuario.CLAVE == "87654321")
+            {
+                _logger.LogWarning("Error: la clave no pueden ser número consecutivos" );
+                return 0;
+            }
+                int respuesta = 0;
             using (OracleConnection con = new OracleConnection(_conn))
             {
                 using (OracleCommand cmd = new OracleCommand())
@@ -426,11 +565,20 @@ namespace CoreCRUDwithORACLE.Servicios
 
             usuario = GetUsuario(usuarioNew.CEDULA);
 
-            if (usuario != null)
+        if (usuario != null)
             {
                 clave = _helper.EncodePassword(usuarioNew.CLAVE);
+                if (clave== _helper.EncodePassword("12345678") || clave == _helper.EncodePassword("87654321"))
+                {
+                    usuario.LOGEO = "33";
+                    return usuario;
+                }
+
                 if (usuario.CLAVE == clave)
-                    return usuario = null;
+                {
+                    usuario.LOGEO = "99";
+                    return usuario;
+                }
 
                 using (OracleConnection con = new OracleConnection(_conn))
                 {
@@ -440,10 +588,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         {
                             con.Open();
                             cmd.Connection = con;
-                            //cmd.CommandType = CommandType.StoredProcedure;
                             cmd.CommandType = CommandType.Text;
-                            //cmd.CommandText = "CONSULTA_AUTENTICACION_USUARIO";
-
 
                             cmd.CommandText = string.Format(actualizaUsuarioClave, clave, estado,
                                                             usuarioNew.CEDULA.Substring(0, 9));
@@ -451,11 +596,16 @@ namespace CoreCRUDwithORACLE.Servicios
                             int odr = cmd.ExecuteNonQuery();
 
                             if (odr == 0)
-                                usuario = null;
+                                usuario.LOGEO = "77";
+                            else
+                                usuario.LOGEO = "OK";
+
                         }
                         catch (Exception ex)
                         {
-                            return usuario = null;
+
+                            usuario.LOGEO = "88";
+                            return usuario;
                         }
                         finally
                         {
@@ -467,17 +617,18 @@ namespace CoreCRUDwithORACLE.Servicios
                     }
                 }
             }
-
             return usuario;
         }
-
-        public int EncerarBase()
+        public string EncerarBase(String Detalle, String Version, String Contr)
         {
-            string encerarBase1 = @"update acta set vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0";
+            int validador1 = 0;
+            int validador2 = 0;
+            int validador3 = 0;
+            string encerarBase1 = @"update acta set vot_junta=0, bla_junta=0, nul_junta=0, est_acta = 0,fec_junta=null, tipo_documento=0, nov_acta=0, cod_usuario_digitador = 0, fec_transmision = null, cod_verresultados='', fec_descarga=null,est_descarga=0";
             string encerarBase3 = @"delete from asistencia";
             string encerarBase4 = @"update  resultados set  fin_resultado=0, cod_vervotos = ''";
             string encerarBase5 = @"update configuracion set est_configuracion = 0";
-            string encerarBase6 = @"insert into configuracion values (10,'Prueba Interna','1.0','28/01/2021',1)";
+            string encerarBase6 = @"insert into configuracion values ((select  max(cod_configuracion) + 1 from configuracion),'" + Detalle + "','" + Version + "',to_char(SYSDATE,'DD/MM/YYYY'),1)";
 
             using (OracleConnection con = new OracleConnection(_conn))
             {
@@ -516,13 +667,14 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.CommandText = encerarBase6;
                         odr = cmd.ExecuteNonQuery();
                         transaction.Commit();
-                        return 1;
+
+                        //return 1;
 
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        return 0;
+                        return "0";
                     }
                     finally
                     {
@@ -531,8 +683,465 @@ namespace CoreCRUDwithORACLE.Servicios
                         cmd.Dispose();
                     }
 
+                    encerarBase1 = "";
+                    encerarBase3 = "";
+                    encerarBase4 = "";
+                    encerarBase1 = @"select count(*) TOTAL1  from acta where vot_junta=0 and bla_junta=0 and nul_junta=0 and est_acta = 0 and cod_usuario_digitador = 0 and est_descarga=0 and fec_transmision is null and cod_verresultados is null and fec_descarga is null";
+                    encerarBase3 = @"select count(*) TOTAL2 from resultados where fin_resultado=0 and cod_vervotos is null";
+                    encerarBase4 = @"select count(*) TOTAL3 from asistencia";
+                    int tota1 = 0;
+                    int tota2 = 0;
+                    int tota3 = 0;
+
+                    using (OracleConnection con1 = new OracleConnection(_conn))
+                    {
+                        using (OracleCommand cmd1 = new OracleCommand())
+                        {
+                            OracleTransaction transaction1;
+                            con1.Open();
+                            cmd1.Connection = con1;
+                            transaction1 = con1.BeginTransaction(IsolationLevel.ReadCommitted);
+                            cmd1.Transaction = transaction1;
+
+                            try
+                            {
+                                //con1.Open();
+                                //cmd1.Connection = con1;
+                                //cmd.CommandType = CommandType.StoredProcedure;
+                                cmd1.CommandType = CommandType.Text;
+                                //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                                cmd1.CommandText = string.Format(encerarBase1);
+                                cmd1.BindByName = true;
+
+                                OracleDataReader odr = cmd1.ExecuteReader();
+                                if (odr.HasRows)
+                                {
+                                    while (odr.Read())
+                                    {
+                                        tota1 = Convert.ToInt32(odr["TOTAL1"]);
+                                    }
+
+                                    //validador1 = 1;
+                                }
+                                else
+                                {
+                                    //validador1 = 0;
+                                }
+
+                                cmd1.CommandText = string.Format(encerarBase3);
+                                cmd1.BindByName = true;
+
+                                OracleDataReader odr1 = cmd1.ExecuteReader();
+                                if (odr1.HasRows)
+                                {
+                                    while (odr1.Read())
+                                    {
+                                        tota2 = Convert.ToInt32(odr1["TOTAL2"]);
+                                    }
+
+                                    //validador2 = 1;
+                                }
+                                else
+                                {
+                                    //validador2 = 0;
+                                }
+
+                                cmd1.CommandText = string.Format(encerarBase4);
+                                cmd1.BindByName = true;
+
+                                OracleDataReader odr2 = cmd1.ExecuteReader();
+                                if (odr2.HasRows)
+                                {
+                                    while (odr1.Read())
+                                    {
+                                        tota3 = Convert.ToInt32(odr2["TOTAL3"]);
+                                    }
+                                    //validador3 = 0;
+                                }
+                                else
+                                {
+                                    //validador3 = 1;
+                                }
+
+                            }
+                            catch (Exception ex)
+                            {
+                                //return usuario;
+                            }
+                            finally
+                            {
+                                con1.Close();
+                                con1.Dispose();
+                                cmd1.Dispose();
+                            }
+
+                        }
+                    }
+
+                    string cadena = "";
+                    if (tota1 > 0)
+                    {
+                        validador1 = 1;
+                        cadena = cadena + tota1 + ";";
+                    }
+                    else
+                    {
+                        validador1 = 0;
+                        cadena = cadena + tota1 + ";";
+                    }
+
+                    if (tota2 > 0)
+                    {
+                        validador2 = 1;
+                        cadena = cadena + tota2 + ";";
+                    }
+                    else
+                    {
+                        validador2 = 0;
+                        cadena = cadena + tota2 + ";";
+                    }
+
+                    if (tota3 > 0)
+                    {
+                        validador3 = 0;
+                        cadena = cadena + tota3 + ";";
+                    }
+                    else
+                    {
+                        validador3 = 1;
+                        cadena = cadena + tota3 + ";";
+                    }
+
+                    if ((validador1 == 1) && (validador2 == 1) && (validador3 == 1))
+                    {
+                        return cadena;
+                    }
+                    else
+                    {
+                        return cadena;
+                    }
+
                 }
             }
         }
+
+        public string MuestraVersion()
+        {
+            string encerarBase6 = "";
+
+            encerarBase6 = @"select ver_configuracion from configuracion where est_configuracion=1";
+            string version = "";
+
+            using (OracleConnection con1 = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd1 = new OracleCommand())
+                {
+                    OracleTransaction transaction1;
+                    con1.Open();
+                    cmd1.Connection = con1;
+                    transaction1 = con1.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd1.Transaction = transaction1;
+
+                    try
+                    {
+                        //con1.Open();
+                        //cmd1.Connection = con1;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd1.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd1.CommandText = string.Format(encerarBase6);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr = cmd1.ExecuteReader();
+                        if (odr.HasRows)
+                        {
+                            while (odr.Read())
+                            {
+                                version = odr["VER_CONFIGURACION"].ToString();
+                            }
+
+                            //validador1 = 1;
+                        }
+                        else
+                        {
+                            //validador1 = 0;
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //return usuario;
+                    }
+                    finally
+                    {
+                        con1.Close();
+                        con1.Dispose();
+                        cmd1.Dispose();
+                    }
+
+                }
+            }
+
+            return version;
+        }
+
+        public string GeneraPDF()
+        {
+            String encerarBase1 = "";
+            String encerarBase3 = "";
+            String encerarBase4 = "";
+            String encerarBase5 = "";
+            String encerarBase6 = "";
+            encerarBase1 = @"select count(*) TOTAL1  from acta where vot_junta=0 and bla_junta=0 and nul_junta=0 and est_acta = 0 and cod_usuario_digitador = 0 and est_descarga=0 and fec_transmision is null and cod_verresultados is null and fec_descarga is null";
+            encerarBase3 = @"select count(*) TOTAL2 from resultados where fin_resultado=0 and cod_vervotos is null";
+            encerarBase4 = @"select count(*) TOTAL3 from asistencia";
+            encerarBase5 = @"select ver_configuracion from configuracion where est_configuracion=1";
+            encerarBase6 = @"select det_configuracion from configuracion where est_configuracion=1";
+            string Dato1 = "0";
+            string Dato2 = "0";
+            string Dato3 = "0";
+            string Dato4 = "";
+            string Dato5 = "";
+
+            using (OracleConnection con1 = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd1 = new OracleCommand())
+                {
+                    OracleTransaction transaction1;
+                    con1.Open();
+                    cmd1.Connection = con1;
+                    transaction1 = con1.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd1.Transaction = transaction1;
+
+                    try
+                    {
+                        //con1.Open();
+                        //cmd1.Connection = con1;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd1.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd1.CommandText = string.Format(encerarBase1);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr = cmd1.ExecuteReader();
+                        if (odr.HasRows)
+                        {
+                            while (odr.Read())
+                            {
+                                Dato1 = odr["TOTAL1"].ToString();
+                            }
+
+                            //validador1 = 1;
+                        }
+                        else
+                        {
+                            //validador1 = 0;
+                        }
+
+                        cmd1.CommandText = string.Format(encerarBase3);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr1 = cmd1.ExecuteReader();
+                        if (odr1.HasRows)
+                        {
+                            while (odr1.Read())
+                            {
+                                Dato2 = odr1["TOTAL2"].ToString();
+                            }
+
+                            //validador2 = 1;
+                        }
+                        else
+                        {
+                            //validador2 = 0;
+                        }
+
+                        cmd1.CommandText = string.Format(encerarBase4);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr2 = cmd1.ExecuteReader();
+                        if (odr2.HasRows)
+                        {
+                            while (odr2.Read())
+                            {
+                                Dato3 = odr2["TOTAL3"].ToString();
+                            }
+                            //validador3 = 0;
+                        }
+                        else
+                        {
+                            //validador3 = 1;
+                        }
+
+                        cmd1.CommandText = string.Format(encerarBase5);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr3 = cmd1.ExecuteReader();
+                        if (odr3.HasRows)
+                        {
+                            while (odr3.Read())
+                            {
+                                Dato4 = odr3["VER_CONFIGURACION"].ToString();
+                            }
+                            //validador3 = 0;
+                        }
+                        else
+                        {
+                            //validador3 = 1;
+                        }
+
+                        cmd1.CommandText = string.Format(encerarBase6);
+                        cmd1.BindByName = true;
+
+                        OracleDataReader odr4 = cmd1.ExecuteReader();
+                        if (odr4.HasRows)
+                        {
+                            while (odr4.Read())
+                            {
+                                Dato5 = odr4["DET_CONFIGURACION"].ToString();
+                            }
+                            //validador3 = 0;
+                        }
+                        else
+                        {
+                            //validador3 = 1;
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //return usuario;
+                    }
+                    finally
+                    {
+                        con1.Close();
+                        con1.Dispose();
+                        cmd1.Dispose();
+                    }
+
+                }
+            }
+
+
+            Document doc = new Document(PageSize.LETTER);
+            // Indicamos donde vamos a guardar el documento
+            //PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream("C:\\Reporte.pdf", FileMode.Create));
+
+            var pdfStream = new FileStream("Reporte.pdf", FileMode.Create);
+
+            PdfWriter writer = PdfWriter.GetInstance(doc, pdfStream);
+
+            // Le colocamos el título y el autor
+            // **Nota: Esto no será visible en el documento
+            doc.AddTitle("Reporte Enceramiento Datos");
+            doc.AddCreator("Consejo Nacional Electoral.");
+
+            // Abrimos el archivo
+            doc.Open();
+
+            // Creamos el tipo de Font que vamos utilizar
+            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.HELVETICA, 8, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
+
+            // Escribimos el encabezamiento en el documento
+            doc.Add(new Paragraph("Reporte Enceramiento Datos"));
+            doc.Add(Chunk.NEWLINE);
+
+            doc.Add(new Paragraph("Proceso:"));
+            doc.Add(Chunk.NEWLINE);
+            doc.Add(new Paragraph(Dato5));
+            doc.Add(Chunk.NEWLINE);
+
+            doc.Add(new Paragraph("Version:"));
+            doc.Add(Chunk.NEWLINE);
+            doc.Add(new Paragraph(Dato4));
+            doc.Add(Chunk.NEWLINE);
+
+
+            // Creamos una tabla que 
+            PdfPTable tblReporte1 = new PdfPTable(2);
+            tblReporte1.WidthPercentage = 100;
+
+            // Configuramos el título de las columnas de la tabla
+            PdfPCell clProceso = new PdfPCell(new Phrase("Proceso: ", _standardFont));
+            clProceso.BorderWidth = 0;
+            clProceso.BorderWidthBottom = 0.75f;
+
+            PdfPCell clVersion = new PdfPCell(new Phrase("Version: ", _standardFont));
+            clVersion.BorderWidth = 0;
+            clVersion.BorderWidthBottom = 0.75f;
+
+            // Añadimos las celdas a la tabla
+            tblReporte1.AddCell(clProceso);
+            tblReporte1.AddCell(clVersion);
+
+            // Llenamos la tabla con información
+            clProceso = new PdfPCell(new Phrase(Dato4, _standardFont));
+            clProceso.BorderWidth = 0;
+
+            clVersion = new PdfPCell(new Phrase(Dato5, _standardFont));
+            clVersion.BorderWidth = 0;
+
+
+            // Añadimos las celdas a la tabla
+            tblReporte1.AddCell(clProceso);
+            tblReporte1.AddCell(clVersion);
+
+            doc.Add(tblReporte1);
+
+            doc.Add(new Paragraph(" "));
+            doc.Add(Chunk.NEWLINE);
+
+            // Creamos una tabla que 
+            PdfPTable tblReporte = new PdfPTable(3);
+            tblReporte.WidthPercentage = 100;
+
+            // Configuramos el título de las columnas de la tabla
+            PdfPCell clActas = new PdfPCell(new Phrase("Registro Actas Enceradas", _standardFont));
+            clActas.BorderWidth = 0;
+            clActas.BorderWidthBottom = 0.75f;
+
+            PdfPCell clResultados = new PdfPCell(new Phrase("Registro Resultados Encerados", _standardFont));
+            clResultados.BorderWidth = 0;
+            clResultados.BorderWidthBottom = 0.75f;
+
+            PdfPCell clAsistencia = new PdfPCell(new Phrase("Registro Asistencia sin Encerar", _standardFont));
+            clAsistencia.BorderWidth = 0;
+            clAsistencia.BorderWidthBottom = 0.75f;
+
+            // Añadimos las celdas a la tabla
+            tblReporte.AddCell(clActas);
+            tblReporte.AddCell(clResultados);
+            tblReporte.AddCell(clAsistencia);
+
+            // Llenamos la tabla con información
+            clActas = new PdfPCell(new Phrase(Dato1, _standardFont));
+            clActas.BorderWidth = 1;
+
+            clResultados = new PdfPCell(new Phrase(Dato2, _standardFont));
+            clResultados.BorderWidth = 1;
+
+            clAsistencia = new PdfPCell(new Phrase(Dato3, _standardFont));
+            clAsistencia.BorderWidth = 1;
+
+            // Añadimos las celdas a la tabla
+            tblReporte.AddCell(clActas);
+            tblReporte.AddCell(clResultados);
+            tblReporte.AddCell(clAsistencia);
+
+            doc.Add(tblReporte);
+
+            doc.Add(new Paragraph("Consejo Nacional Electoral."));
+            doc.Add(Chunk.NEWLINE);
+
+            doc.Close();
+            writer.Close();
+
+
+
+            string version = "";
+            return version;
+        }
+
     }
 }

@@ -49,11 +49,24 @@ namespace CoreCRUDwithORACLE.Controllers
 
                 if (result != null)
                 {
+                    if (result.EST_USUARIO==0)
+                    {
+                        ModelState.AddModelError(string.Empty, "Usuario Inactivo.");
+                        return View();
+
+                    }
+
 
                     if (result.COD_ROL == 4)
                     {
                         ModelState.AddModelError(string.Empty, "Usuario no permitido.");
                         return View();
+                    }
+
+                    if (result.EST_CLAVE == 0)
+                    {
+                        return RedirectToAction("AltaClave", new RouteValueDictionary(
+                                                        new { controller = "Usuario", action = "AltaClave", cedula = protector.Protect(result.CEDULA) }));
                     }
 
                     var claims = new List<Claim>
@@ -99,19 +112,19 @@ namespace CoreCRUDwithORACLE.Controllers
                     HttpContext.Session.SetString("cod_rol", result.COD_ROL.ToString());
                     ViewBag.CODROL = result.COD_ROL;
 
-                    if (result.EST_CLAVE == 0)
-                    {
-                        return RedirectToAction("AltaClave", new RouteValueDictionary(
-                                                        new { controller = "Usuario", action = "AltaClave", cedula = protector.Protect(result.CEDULA) }));
-                    }
-                    
                     HttpContext.Session.SetString("cod_provincia", result.COD_PROVINCIA.ToString());
                     
                     return RedirectToAction("index", "home");
                 }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Usuario o clave incorrecta.");
+                    return View();
+
+                }
             }
 
-            ModelState.AddModelError(string.Empty, "Intento de ingreso inválido.");
+            ModelState.AddModelError(string.Empty, "Intento de ingreso inválido (Error al acceder a la base de datos.)");
             return View();
         }
 

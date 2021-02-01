@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Conteo rápido| CNE</title>
+    <title>Conteo rápido | CNE</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -171,11 +171,11 @@
 <!-- page script -->
 <script>
     $(function () {
-        $("#example1").DataTable({
+        $("#usuarios").DataTable({
             "responsive": true,
             "autoWidth": false,
         });
-        $('#example2').DataTable({
+        $('#usuarios2').DataTable({
             "paging": true,
             "lengthChange": false,
             "searching": false,
@@ -186,3 +186,9 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#usuarios').DataTable();
+    });</script>
+

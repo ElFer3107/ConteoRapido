@@ -15,8 +15,10 @@ namespace CoreCRUDwithORACLE.Models
         [DisplayName("CEDULA")]
         public string CEDULAC { get; set; }
         [DisplayName("PROVINCIA")]
+        [Required(ErrorMessage = "Seleccione una provincia")]
         public int codProvincia { get; set; }
         public List<SelectListItem> provincias { get; set; }
+        [Required(ErrorMessage = "Seleccione un rol")]
         [DisplayName("ROL")]
         public int codRol { get; set; }
         public List<SelectListItem> roles { get; set; }

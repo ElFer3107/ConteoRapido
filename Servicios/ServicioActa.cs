@@ -210,13 +210,21 @@ namespace CoreCRUDwithORACLE.Servicios
                 {
                     try
                     {
+
+                        OracleTransaction transaction;
                         con.Open();
                         cmd.Connection = con;
+                        transaction = con.BeginTransaction(IsolationLevel.ReadCommitted);
+                        cmd.Transaction = transaction;
+                        transaction.Commit();
+
+                                                //con.Open();
+                        //cmd.Connection = con;
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
                         cmd.CommandText = string.Format(actualizaActa, cod_usuario, junta);
-
+                        
                         return resultado = cmd.ExecuteNonQuery();
 
                     }

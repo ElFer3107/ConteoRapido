@@ -38,16 +38,17 @@
                         <div class="card-body">
                             <form asp-action="Edit">
                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                
                                 <div class="form-group" hidden="hidden">
                                     <label asp-for="COD_USUARIO" class="control-label"></label>
                                     <input asp-for="COD_USUARIO" class="form-control" readonly />
                                     <span asp-validation-for="COD_USUARIO" class="text-danger"></span>
                                 </div>
                                 @*<div class="form-group">
-                                        <label asp-for="COD_PROVINCIA" class="control-label"></label>
-                                        <input asp-for="COD_PROVINCIA" class="form-control" />
-                                        <span asp-validation-for="COD_PROVINCIA" class="text-danger"></span>
-                                    </div>*@
+            <label asp-for="COD_PROVINCIA" class="control-label"></label>
+            <input asp-for="COD_PROVINCIA" class="form-control" />
+            <span asp-validation-for="COD_PROVINCIA" class="text-danger"></span>
+        </div>*@
                                 <div class="form-group">
                                     <label asp-for="codProvincia"></label>
                                     <select asp-for="codProvincia"
@@ -66,32 +67,32 @@
                                     <span asp-validation-for="CEDULA" class="text-danger"></span>
                                 </div>
                                 @*<div class="form-group">
-                                        <label asp-for="DIGITO" class="control-label"></label>
-                                        <input asp-for="DIGITO" class="form-control" readonly />
-                                        <span asp-validation-for="DIGITO" class="text-danger"></span>
-                                    </div>*@
+            <label asp-for="DIGITO" class="control-label"></label>
+            <input asp-for="DIGITO" class="form-control" readonly />
+            <span asp-validation-for="DIGITO" class="text-danger"></span>
+        </div>*@
                                 @Html.HiddenFor(u => u.LOGEO)
                                 @Html.HiddenFor(u => u.DIGITO)
                                 @*<div class="form-group">
-                                        <label asp-for="CLAVE" class="control-label"></label>
-                                        <input asp-for="CLAVE" class="form-control" />
-                                        <span asp-validation-for="CLAVE" class="text-danger"></span>
-                                    </div>*@
+            <label asp-for="CLAVE" class="control-label"></label>
+            <input asp-for="CLAVE" class="form-control" />
+            <span asp-validation-for="CLAVE" class="text-danger"></span>
+        </div>*@
                                 <div class="form-group">
                                     <label asp-for="NOMBRE" class="control-label"></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-user-check"></i></span>
                                         </div>
-                                        <input asp-for="NOMBRE" type="text" class="form-control"  maxlength="100" readonly>
+                                        <input asp-for="NOMBRE" type="text" class="form-control" maxlength="100" readonly>
                                     </div>
                                     <span asp-validation-for="NOMBRE" class="text-danger"></span>
                                 </div>
                                 @*<div class="form-group">
-                                        <label asp-for="ROL" class="control-label"></label>
-                                        <input asp-for="ROL" class="form-control" />
-                                        <span asp-validation-for="ROL" class="text-danger"></span>
-                                    </div>*@
+            <label asp-for="ROL" class="control-label"></label>
+            <input asp-for="ROL" class="form-control" />
+            <span asp-validation-for="ROL" class="text-danger"></span>
+        </div>*@
                                 <div class="form-group">
                                     <label asp-for="codRol"></label>
                                     <select asp-for="codRol"

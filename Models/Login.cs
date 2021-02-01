@@ -10,6 +10,7 @@ namespace CoreCRUDwithORACLE.Models
         public int COD_ROL { get; set; }
         public int COD_PROVINCIA { get; set; }
         public int EST_CLAVE { get; set; }
+        public int EST_USUARIO { get; set; }
         public string CEDULA { get; set; }
         public string NOMBRE { get; set; }
     }

@@ -150,7 +150,7 @@ namespace CoreCRUDwithORACLE.Controllers
         // POST: ActaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, ActaResponse collection)
+        public ActionResult Edit(int id, ActaResponse collection,string ok )
         {
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
                 return RedirectToAction("Logout", "Account");

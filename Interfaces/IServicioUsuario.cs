@@ -9,11 +9,16 @@ namespace CoreCRUDwithORACLE.Interfaces
     public interface IServicioUsuario
     {
         IEnumerable<Usuario> GetUsuarios(int codigoRol, int codigoProvincia);
+        //Usuario GetUsuario(string iCedula);
         Usuario GetUsuario(string iCedula);
         Usuario ActualizaUsuario(UsuarioResponse usuarioActualizado);
         Login GetAutenticacionUsuario(string iMail, string iPass);
         Task<int> IngresaUsuario(UsuarioResponse usuario);
         Usuario ActualizaClave(Usuario usuarioNew, int estado);
-        int EncerarBase();
+
+         string EncerarBase(String Detalle, String Version, String Contr);
+
+        string MuestraVersion();
+        string GeneraPDF();
     }
 }
