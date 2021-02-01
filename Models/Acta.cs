@@ -17,9 +17,11 @@ namespace CoreCRUDwithORACLE.Models
         [DisplayName("VOTOS")]
         public int VOT_JUNTA { get; set; }
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [Required(ErrorMessage = "Campo Obligatorio")]
         [DisplayName("BLANCOS")]
         public int BLA_JUNTA { get; set; }
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
+        [Required(ErrorMessage = "Campo Obligatorio")]
         [DisplayName("NULOS")]
         public int NUL_JUNTA { get; set; }
         public int Estado_Acta { get; set; }

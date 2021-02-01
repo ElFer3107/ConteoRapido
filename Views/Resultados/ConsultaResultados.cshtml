@@ -11,13 +11,14 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
         <div class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
-            <input type="number" placeholder="Ingrese Junta" class="form-control" name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+            <input type="text" placeholder="Ingrese Junta" class="form-control" maxlength="5" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+                   name="textoBuscar" value="@ViewData["CurrentFilter"]" />
         </div>
-        <div  class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
+        <div class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
             <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
         </div>
     </div>
-    
+
 </form>
 @if (Model != null)
 {
@@ -142,7 +143,8 @@
                                         <div class="col-sm-12 col-md-12 col-lg-12">
                                             @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0", @maxlength="3" })*@
                                             @*@Html.EditorFor(m => item.VOTOS, new { @value = "3", @maxlength = "3" })*@
-                                            <input asp-for="@(item.VOTOS)" type="number" id="@item.Cod_Candidato" tabindex="" style="height: 45px" name="_Votos" class="form-control" maxlength="3" />
+                                            <input asp-for="@(item.VOTOS)" type="text" id="@item.Cod_Candidato" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+                                                   tabindex="" style="height: 45px" name="_Votos" class="form-control" maxlength="3" />
                                             @Html.ValidationMessageFor(m => item.VOTOS)
                                         </div>
                                     </div>
@@ -189,7 +191,9 @@
         const blancos = $('#Acta_BLA_JUNTA').val() != '' ? parseInt($('#Acta_BLA_JUNTA').val()) : 0;
         const idsCandidatos = $('#votoCandidatos').val().split('|');
         for (var i = 0; i < idsCandidatos.length; i++) {
-            totCandidatos += parseInt($('#' + idsCandidatos[i]).val());
+            let voto = $('#' + idsCandidatos[i]).val() !== '' ? $('#' + idsCandidatos[i]).val() : '0';
+            $('#' + idsCandidatos[i]).val(voto);
+            totCandidatos += parseInt(voto);
         }
         //Validacion 1: Total Sufragantes > 0
         if (totSufragantes == 0) {
@@ -201,18 +205,19 @@
             $('#Acta_NOV_ACTA').val('1');
         }
         //Validacion 3: Blancos + Nulos + Total Candidatos >= Total Sufragrantes - 1%
-        if (nulos + blancos + totCandidatos < (totSufragantes - parseInt((totSufragantes * 0.01))) ) {
+        if (nulos + blancos + totCandidatos < (totSufragantes - parseInt((totSufragantes * 0.01)))) {
             sms += ' El total de votos: blancos + nulos + válidos no está dentro del umbral(total de sufragantes - total de sufragantes * 1%) \n';
             $('#Acta_NOV_ACTA').val('2');
         }
         //Validacion 4: Blancos + Nulos + Total Candidatos <= Total Sufragrantes + 1%
-        if (nulos + blancos + totCandidatos > (totSufragantes + parseInt((totSufragantes * 0.01))) ) {
+        if (nulos + blancos + totCandidatos > (totSufragantes + parseInt((totSufragantes * 0.01)))) {
             sms += ' El total de votos: blancos + nulos + válidos no está dentro del umbral(total de sufragantes + total de sufragantes * 1%) \n';
             $('#Acta_NOV_ACTA').val('2');
         }
         //Validacion 5: Total de algún Candidato <= Total Validos
         for (var i = 0; i < idsCandidatos.length; i++) {
-            if (parseInt($('#' + idsCandidatos[i]).val()) > (totSufragantes + parseInt((totSufragantes * 0.01)) - blancos - nulos) ) {
+            const votoCandidato = $('#' + idsCandidatos[i]).val() !== '' ? parseInt($('#' + idsCandidatos[i]).val()) : 0;
+            if (votoCandidato > (totSufragantes + parseInt((totSufragantes * 0.01)) - blancos - nulos)) {
                 sms += 'Los votos de algún candidato es mayor al total se Sufragantes + total sufragantes * 1% - blancos - nulos';
                 $('#Acta_NOV_ACTA').val('3');
                 break;
@@ -224,7 +229,7 @@
         $("#btnSave").click(function () {
             //const validaciones = validaciones();
             swal({
-                title: validaciones().length  > 0 ? "Existen las siguientes novedades. Desea continuar?" : "No existen novedades en la información ingresada. Desea Continuar?",
+                title: validaciones().length > 0 ? "Existen las siguientes novedades. Desea continuar?" : "No existen novedades en la información ingresada. Desea Continuar?",
                 text: validaciones().length > 0 ? validaciones() : "",
                 icon: validaciones().length > 0 ? "warning" : "info",
                 buttons: [
@@ -263,7 +268,7 @@
             });
         }
         //Tab Votos
-       
+
     });
 </script>
 @section Scripts {
