@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.DataProtection;
+using CoreCRUDwithORACLE.Comunes;
 
 namespace CoreCRUDwithORACLE.Servicios
 {
@@ -14,14 +16,17 @@ namespace CoreCRUDwithORACLE.Servicios
     {
         private readonly string _conn;
         private Comunes.Auxiliar _helper = new Comunes.Auxiliar();
+        private readonly IDataProtector protector;
+        
 
-        public ServicioActa(IConfiguration _configuration)
+        public ServicioActa(IConfiguration _configuration, IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             _conn = _configuration.GetConnectionString("OracleDBConnection");
+            this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
         private string consultaActas = @" SELECT P.COD_PROVINCIA, P.NOM_PROVINCIA, C.COD_CANTON,C.NOM_CANTON,Q.COD_PARROQUIA, 
-                                                 Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA, J.SEXO,
+                                                 Q.NOM_PARROQUIA, Z.COD_ZONA,Z.NOM_ZONA, J.JUNTA, J.SEXO, a.est_Acta as Estado_Acta,
                                                  A.COD_JUNTA, A.COD_USUARIO, U.NOM_USUARIO, VOT_JUNTA,BLA_JUNTA,NUL_JUNTA       
                                                  FROM PROVINCIA P, CANTON C, PARROQUIA Q , ZONA Z, JUNTA J, ACTA A, USUARIO U
                                                  WHERE J.COD_ZONA=Z.COD_ZONA
@@ -123,7 +128,8 @@ namespace CoreCRUDwithORACLE.Servicios
                                     COD_USUARIO = Convert.ToInt32(odr["cod_usuario"]),
                                     BLA_JUNTA = Convert.ToInt32(odr["bla_junta"]),
                                     NUL_JUNTA = Convert.ToInt32(odr["nul_junta"]),
-                                    VOT_JUNTA = Convert.ToInt32(odr["vot_junta"])
+                                    VOT_JUNTA = Convert.ToInt32(odr["vot_junta"]),
+                                    Estado_Acta= Convert.ToInt32(odr["Estado_Acta"])
                                 };
                                 actas.Add(acta);
                             }
@@ -325,7 +331,7 @@ namespace CoreCRUDwithORACLE.Servicios
             }
         }
 
-        public ResultadosVotos ConsultaResultados(int? codigoJunta)
+        public ResultadosVotos ConsultaResultados(string? codigoJunta)
         {
             ResultadosVotos resultados = null;
             List<Resultado> resultadosVotos = null;
@@ -345,7 +351,9 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
-                        cmd.CommandText = string.Format(consultaResultadosActa, codigoJunta);
+                        var cod_junta = protector.Unprotect(codigoJunta);
+                        int codJunta = Convert.ToInt32(cod_junta);
+                        cmd.CommandText = string.Format(consultaResultadosActa, codJunta);
 
                         OracleDataReader odr = cmd.ExecuteReader();
 
@@ -376,7 +384,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
-                        cmd.CommandText = string.Format(consultaResultadosCand, codigoJunta);
+                        cmd.CommandText = string.Format(consultaResultadosCand, codJunta);
 
                         odr = cmd.ExecuteReader();
 

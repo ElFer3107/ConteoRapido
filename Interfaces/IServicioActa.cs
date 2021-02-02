@@ -10,7 +10,7 @@ namespace CoreCRUDwithORACLE.Interfaces
         IEnumerable<ActaResponse> GetActas(int codigoProvincia);
         Acta ConsultarAsignacion(int codigoUsuario);
         int ActualizaAsignacion(int codigoJunta);
-        ResultadosVotos ConsultaResultados(int? codigoJunta);
+        ResultadosVotos ConsultaResultados(string? codigoJunta);
         Respuesta ActualizarVotosActa(ResultadosVotos resultados);
     }
 }

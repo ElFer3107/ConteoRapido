@@ -32,5 +32,6 @@ namespace CoreCRUDwithORACLE.Models
         public string JUNTA { get; set; }
         public int TOT_ELECTORES { get; set; }
         public int NOV_ACTA { get; set; }
+        public string SEGURO { get; set; }
     }
 }

@@ -138,14 +138,24 @@
                                                             @Html.DisplayFor(modelItem => item.MAIL)
                                                         </td>*@
 
-                                                    <td>
-                                                        @Html.ActionLink("Asignar", "Edit", new { id = item.COD_JUNTA }, new { @class = "btn btn-block btn-info" })
+                                                <td>
+                                                    @if (item.Estado_Acta == 0)
+                                                    {
+                                                        @Html.ActionLink("Asignar", "Edit", new { id = item.SEGURO }, new { @class = "btn btn-block btn-info" })
                                                         @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |*@
                                                         @if (item.COD_USUARIO != 0)
                                                         {
-                                                            @Html.ActionLink("Quitar", "Delete", new { id = item.COD_JUNTA }, new { @class = "btn btn-block btn-warning" })
+                                                            @Html.ActionLink("Quitar", "Delete", new { id = item.SEGURO }, new { @class = "btn btn-block btn-warning" })
                                                         }
-                                                    </td>
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <b>Transmitida</b>
+                                                    }
+
+
+                                                </td>
 
                                                 </tr>
                                             }

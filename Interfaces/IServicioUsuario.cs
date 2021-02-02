@@ -11,6 +11,7 @@ namespace CoreCRUDwithORACLE.Interfaces
         IEnumerable<Usuario> GetUsuarios(int codigoRol, int codigoProvincia);
         //Usuario GetUsuario(string iCedula);
         Usuario GetUsuario(string iCedula);
+        Usuario GetUsuarioxCedulaMail(string iCedula,String iClave);
         Usuario ActualizaUsuario(UsuarioResponse usuarioActualizado);
         Login GetAutenticacionUsuario(string iMail, string iPass);
         Task<int> IngresaUsuario(UsuarioResponse usuario);
@@ -20,5 +21,6 @@ namespace CoreCRUDwithORACLE.Interfaces
 
         string MuestraVersion();
         string GeneraPDF();
+        string[,] Resultados_Candidato();
     }
 }

@@ -10,7 +10,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace CoreCRUDwithORACLE.Controllers
 {
@@ -199,13 +202,16 @@ namespace CoreCRUDwithORACLE.Controllers
                 Usuario respuesta = servicioUsuario.ActualizaUsuario(usuario);
                 if (respuesta==null)
                 {
-                    ViewBag.Message = "Cédula o correo no permitito (pertenecen a otro usuario)";
+                    //ViewBag.Message = ;
+                    ModelState.AddModelError(string.Empty, "Cédula o correo no permitito(pertenecen a otro usuario)");
                     return View(usuarioMod);
                 }                    
                 else
                 {
-                    ViewBag.Message = "Usuario actualizado exitosamente!";
-                    return RedirectToAction("Index");
+                    
+                    ModelState.AddModelError(string.Empty, "Usuario actualizado exitosamente!");
+                    return View(usuarioMod);
+                    //return RedirectToAction("Index");
                 }
                     
             }
@@ -419,8 +425,12 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(usuarionNew);
             }
 
-            // Usuario validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
-            Usuario validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
+
+            Usuario validacionUsuario = servicioUsuario.GetUsuarioxCedulaMail(usuarionNew.CEDULAC, usuarionNew.MAIL);
+
+            // validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
+
+            
 
             if (validacionUsuario != null)
             {
@@ -612,8 +622,6 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
-           // if (string.IsNullOrEmpty(HttpContext.Session.GetString("cod_rol")))
-            //    return RedirectToAction("Logout", "Account");
             String Detalle_Carga = "";
             string version_carga = servicioUsuario.MuestraVersion();
             ViewBag.Detalle_Carga = version_carga;
@@ -623,14 +631,218 @@ namespace CoreCRUDwithORACLE.Controllers
             String Acta = "";
             String Resultados = "";
             String Asistencia = "";
-            //return View();
 
             if (Contr == "2")
             {
                 string dat = servicioUsuario.GeneraPDF();
+
+                char delimitador = ';';
+                string[] valores = dat.Split(delimitador);
+
+                Document doc = new Document(PageSize.LETTER);
+                // Indicamos donde vamos a guardar el documento
+                MemoryStream memoryStream1 = new MemoryStream();
+                PdfWriter writer = PdfWriter.GetInstance(doc, memoryStream1);
+                // Le colocamos el título y el autor
+                doc.AddTitle("Reporte Enceramiento Datos");
+                doc.AddCreator("Consejo Nacional Electoral.");
+                // Abrimos el archivo
+                doc.Open();
+                // Creamos el tipo de Font que vamos utilizar
+                iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.HELVETICA, 8, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
+                // Escribimos el encabezamiento en el documento
+                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance("images/logo1.png");
+                imagen.Alignment = iTextSharp.text.Element.ALIGN_CENTER;
+                doc.Add(imagen);
+
+                doc.Add(new Paragraph(" "));
+                // Creamos una tabla que devuelva los candidatos
+                PdfPTable tblDatosAdicionales1 = new PdfPTable(1);
+                tblDatosAdicionales1.WidthPercentage = 100;
+                tblDatosAdicionales1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+
+                // Configuramos el título de las columnas de la tabla
+                PdfPCell clFirma1 = new PdfPCell(new Phrase("ELECCIONES GENERALES 2021", FontFactory.GetFont("ARIAL", 18, iTextSharp.text.Font.BOLD)));
+                clFirma1.BorderWidth = 0;
+                clFirma1.BorderWidthBottom = 0;
+                clFirma1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                // Añadimos las celdas a la tabla
+                tblDatosAdicionales1.AddCell(clFirma1);
+
+                clFirma1 = new PdfPCell(new Phrase("7 DE FEBRERO 2021", FontFactory.GetFont("ARIAL", 18, iTextSharp.text.Font.BOLD)));
+                clFirma1.BorderWidth = 0;
+                clFirma1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+                tblDatosAdicionales1.AddCell(clFirma1);
+
+                doc.Add(tblDatosAdicionales1);
+
+                doc.Add(Chunk.NEWLINE);
+
+                doc.Add(new Paragraph("REPORTE DE ENCERAMIENTO - CONTEO RAPIDO", FontFactory.GetFont("ARIAL", 14, iTextSharp.text.Font.BOLD)));
+                doc.Add(new Paragraph("Dignidad:  PRESIDENTE", FontFactory.GetFont("ARIAL", 13, iTextSharp.text.Font.BOLD)));
+                doc.Add(new Paragraph("Hora de Enceramiento:" + DateTime.Now.ToString("t"), FontFactory.GetFont("ARIAL", 13, iTextSharp.text.Font.BOLD)));
+
+                //doc.Add(new Paragraph(DateTime.Now.ToString("t")));
+                doc.Add(Chunk.NEWLINE);
+
+                // Creamos una tabla que 
+                PdfPTable tblReporte = new PdfPTable(3);
+                tblReporte.WidthPercentage = 100;
+
+                // Configuramos el título de las columnas de la tabla
+                PdfPCell clActas = new PdfPCell(new Phrase("Actas Enceradas", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clActas.BorderWidth = 0;
+                clActas.BorderWidthBottom = 0.75f;
+
+                PdfPCell clResultados = new PdfPCell(new Phrase("Resultados Encerados", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clResultados.BorderWidth = 0;
+                clResultados.BorderWidthBottom = 0.75f;
+
+                PdfPCell clAsistencia = new PdfPCell(new Phrase("Asistencia sin Encerar", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clAsistencia.BorderWidth = 0;
+                clAsistencia.BorderWidthBottom = 0.75f;
+
+                // Añadimos las celdas a la tabla
+                tblReporte.AddCell(clActas);
+                tblReporte.AddCell(clResultados);
+                tblReporte.AddCell(clAsistencia);
+
+                // Llenamos la tabla con información
+                clActas = new PdfPCell(new Phrase(valores[0].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                clActas.BorderWidth = 1;
+
+                clResultados = new PdfPCell(new Phrase(valores[1].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                clResultados.BorderWidth = 1;
+
+                clAsistencia = new PdfPCell(new Phrase(valores[2].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                clAsistencia.BorderWidth = 1;
+
+                // Añadimos las celdas a la tabla
+                tblReporte.AddCell(clActas);
+                tblReporte.AddCell(clResultados);
+                tblReporte.AddCell(clAsistencia);
+
+                doc.Add(tblReporte);
+
+                doc.Add(new Paragraph("Detalle de Votos Encerados", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                doc.Add(Chunk.NEWLINE);
+                //////////////////////////
+                // Creamos una tabla que devuelva los candidatos
+                PdfPTable tblReporteCandidatos = new PdfPTable(5);
+                tblReporte.WidthPercentage = 100;
+                tblReporte.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+
+                // Configuramos el título de las columnas de la tabla
+                PdfPCell clFila1 = new PdfPCell(new Phrase("  ", _standardFont));
+                clFila1.BorderWidth = 0;
+                clFila1.BorderWidthBottom = 0;
+                clFila1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                PdfPCell clFila2 = new PdfPCell(new Phrase("Numero", FontFactory.GetFont("ARIAL", 13, iTextSharp.text.Font.BOLD)));
+                clFila2.BorderWidth = 0;
+                clFila2.BorderWidthBottom = 0.75f;
+                clFila2.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                PdfPCell clFila3 = new PdfPCell(new Phrase("Candidato", FontFactory.GetFont("ARIAL", 13, iTextSharp.text.Font.BOLD)));
+                clFila3.BorderWidth = 0;
+                clFila3.BorderWidthBottom = 0.75f;
+                clFila3.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                PdfPCell clFila4 = new PdfPCell(new Phrase("Votos", FontFactory.GetFont("ARIAL", 13, iTextSharp.text.Font.BOLD)));
+                clFila4.BorderWidth = 0;
+                clFila4.BorderWidthBottom = 0.75f;///
+                clFila4.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                PdfPCell clFila5 = new PdfPCell(new Phrase("  ", _standardFont));
+                clFila5.BorderWidth = 0;
+                clFila5.BorderWidthBottom = 0;///
+                clFila5.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                // Añadimos las celdas a la tabla
+                tblReporteCandidatos.AddCell(clFila1);
+                tblReporteCandidatos.AddCell(clFila2);
+                tblReporteCandidatos.AddCell(clFila3);
+                tblReporteCandidatos.AddCell(clFila4);
+                tblReporteCandidatos.AddCell(clFila5);
+
+                string[,] Candidato = new string[16, 3];
+                Candidato = servicioUsuario.Resultados_Candidato();
+                int longitud = 16;
+                int y = 0;
+                while (y < longitud)
+                {
+                    int z = 0;
+                    clFila1 = new PdfPCell(new Phrase(" ", _standardFont));
+                    clFila1.BorderWidth = 0;
+
+                    clFila2 = new PdfPCell(new Phrase(Candidato[y, z].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                    clFila2.BorderWidth = 1;
+                    clFila2.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                    clFila3 = new PdfPCell(new Phrase(Candidato[y, z + 1].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                    clFila3.BorderWidth = 1;
+                    clFila3.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                    clFila4 = new PdfPCell(new Phrase(Candidato[y, z + 2].ToString(), FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.NORMAL)));
+                    clFila4.BorderWidth = 1;
+                    clFila4.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+
+                    clFila5 = new PdfPCell(new Phrase(" ", _standardFont));
+                    clFila5.BorderWidth = 0;
+                    tblReporteCandidatos.AddCell(clFila1);
+                    tblReporteCandidatos.AddCell(clFila2);
+                    tblReporteCandidatos.AddCell(clFila3);
+                    tblReporteCandidatos.AddCell(clFila4);
+                    tblReporteCandidatos.AddCell(clFila5);
+
+
+
+                    y++;
+                }
+                doc.Add(tblReporteCandidatos);
+                doc.Add(Chunk.NEWLINE);
+                // Añadimos las celdas a la tabla
+                ///////////////////
+                // Creamos una tabla que devuelva los candidatos
+                PdfPTable tblDatosAdicionales = new PdfPTable(1);
+                tblDatosAdicionales.WidthPercentage = 100;
+                tblDatosAdicionales.HorizontalAlignment = iTextSharp.text.Element.ALIGN_JUSTIFIED;
+
+
+                // Configuramos el título de las columnas de la tabla
+                PdfPCell clFirma = new PdfPCell(new Phrase("Firma Coordinador Nacional de Conteo Rápido", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clFirma.BorderWidth = 0;
+                clFirma.BorderWidthBottom = 0;
+                clFirma.HorizontalAlignment = iTextSharp.text.Element.ALIGN_JUSTIFIED;
+
+                // Añadimos las celdas a la tabla
+                tblDatosAdicionales.AddCell(clFirma);
+
+                clFirma = new PdfPCell(new Phrase("Cedula:_________________", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clFirma.BorderWidth = 0;
+                clFirma.HorizontalAlignment = iTextSharp.text.Element.ALIGN_JUSTIFIED;
+                tblDatosAdicionales.AddCell(clFirma);
+
+                clFirma = new PdfPCell(new Phrase("Nombre:_______________________________________", FontFactory.GetFont("ARIAL", 11, iTextSharp.text.Font.BOLD)));
+                clFirma.BorderWidth = 0;
+                clFirma.HorizontalAlignment = iTextSharp.text.Element.ALIGN_JUSTIFIED;
+
+                tblDatosAdicionales.AddCell(clFirma);
+                doc.Add(tblDatosAdicionales);
+                ////////////////77777
+                doc.Close();
+
+                writer.Close();
+
+                MemoryStream pdfstream = new MemoryStream(memoryStream1.ToArray());
+                var bytes = pdfstream.ToArray();
+                return File(bytes, System.Net.Mime.MediaTypeNames.Application.Octet, "Reporte.pdf");
+                ///////////////////////////////////////
             }
 
-            //return View();
             if ((Detalle is null) && (Version is null))
             {
                 ViewBag.Detalle = "";

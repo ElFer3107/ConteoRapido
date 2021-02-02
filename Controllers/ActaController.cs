@@ -4,6 +4,7 @@ using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.DataProtection;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,13 +14,15 @@ namespace CoreCRUDwithORACLE.Controllers
     public class ActaController : Controller
     {
         IServicioActa servicioActa;
+        private readonly IDataProtector protector;
         private readonly IServicioUsuario servicioUsuario;
         private string mensaje = string.Empty;
 
-        public ActaController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario)
+        public ActaController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario, IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             servicioActa = _servicioActa;
             servicioUsuario = _servicioUsuario;
+            this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
         public IActionResult Index(string sortOrder, string currentFilter, 
@@ -52,7 +55,11 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "No existe información.");
                 return View();
             }
-
+            actas = actas.Select(e =>
+            {
+                e.SEGURO = protector.Protect(e.COD_JUNTA.ToString());
+                return e;
+            });
             if (!String.IsNullOrEmpty(textoBuscar))
             {
                 if (Int32.TryParse(textoBuscar, out number))
@@ -98,6 +105,8 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!string.IsNullOrEmpty(mensaje))
                 ViewBag.Message = mensaje;
 
+           
+
             return View(PaginatedList<ActaResponse>.Create(actas.AsQueryable(), pageNumber ?? 1, pageSize));
             
         }
@@ -140,7 +149,8 @@ namespace CoreCRUDwithORACLE.Controllers
 
             if (!String.IsNullOrEmpty(id))
             {
-                ActaResponse acta = servicioActa.GetActa(Convert.ToInt32(id));
+                var cod_junta = protector.Unprotect(id.ToString());
+                ActaResponse acta = servicioActa.GetActa(Convert.ToInt32(cod_junta));
                 mensaje = string.Empty;
                 return View(acta);
             }
@@ -193,14 +203,15 @@ namespace CoreCRUDwithORACLE.Controllers
         }
 
         // GET: ActaController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(string id)
         {
             if (!User.Identity.IsAuthenticated)
                 return RedirectToAction("Logout", "Account");
 
             try
             {
-                int respuesta = servicioActa.ActualizaAsignacion(id);
+                var cod_junta = protector.Unprotect(id.ToString());
+                int respuesta = servicioActa.ActualizaAsignacion(Convert.ToInt32( cod_junta));
                 if (respuesta > 0)
                 {
                     mensaje = "Acta Liberada";

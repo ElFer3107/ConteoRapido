@@ -3,7 +3,7 @@
     ViewData["Title"] = "ConsultaResultados";
 }
 
-<h1>Consulta de Resultados</h1>
+<h1>Ingreso de resultados</h1>
 
 <hr />
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -11,8 +11,8 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row">
         <div class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
-            <input type="text" placeholder="Ingrese Junta" class="form-control" maxlength="5" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
-                   name="textoBuscar" value="@ViewData["CurrentFilter"]" />
+            <input type="text" placeholder="Ingrese el número de acta" class="form-control" maxlength="5" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+                   name="textoBuscar"  value="@ViewData["CurrentFilter"]"  />
         </div>
         <div class="form-actions no-color col-sm-6 cl-md-6 col-lg-6">
             <input type="submit" value="Buscar" class="btn btn-default btn-light" /> |
@@ -80,17 +80,20 @@
                     <div class="card-body">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
-                            <label asp-for="Acta.VOT_JUNTA" class="control-label"></label>
+                            <!--<label asp-for="Acta.VOT_JUNTA" class="control-label"></label>-->
+                            <label  class="control-label">Total Sufragantes</label>
                             <input asp-for="Acta.VOT_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
                             <span asp-validation-for="Acta.VOT_JUNTA" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Acta.BLA_JUNTA"></label>
+                            <!--<label asp-for="Acta.BLA_JUNTA"></label>-->
+                            <label >Votos Blancos</label>
                             <input asp-for="Acta.BLA_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
                             <span asp-validation-for="Acta.BLA_JUNTA" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Acta.NUL_JUNTA"></label>
+                            <!--<label asp-for="Acta.NUL_JUNTA"></label>-->
+                            <label>Votos Nulos</label>
                             <input asp-for="Acta.NUL_JUNTA" type="text" class="form-control" maxlength="3" data-inputmask='"mask": "999"' data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')" />
                             <span asp-validation-for="Acta.NUL_JUNTA" class="text-danger"></span>
                         </div>
@@ -143,7 +146,7 @@
                                         <div class="col-sm-12 col-md-12 col-lg-12">
                                             @*@Html.TextBoxFor(model => item.VOTOS, new { @value = "0", @maxlength="3" })*@
                                             @*@Html.EditorFor(m => item.VOTOS, new { @value = "3", @maxlength = "3" })*@
-                                            <input asp-for="@(item.VOTOS)" type="text" id="@item.Cod_Candidato" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
+                                            <input asp-for="@(item.VOTOS)" type="text" id="@item.Cod_Candidato" tabindex="@item.Orden" data-mask oninput="this.value = this.value.replace(/[^0-9]/g,'')"
                                                    tabindex="" style="height: 45px" name="_Votos" class="form-control" maxlength="3" />
                                             @Html.ValidationMessageFor(m => item.VOTOS)
                                         </div>
@@ -164,7 +167,7 @@
     </div>
 }
 <div>
-    <a asp-controller="Home" asp-action="Index">Regresar al listado</a>
+    <a asp-controller="Home" asp-action="Index">Regresar al inicio</a>
 </div>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>

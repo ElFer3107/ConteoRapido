@@ -24,7 +24,9 @@ namespace CoreCRUDwithORACLE.Models
         public string LOGEO { get; set; }
         [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo clave debe tener mínimo 8 dígitos")]
         [RegularExpression(@"^(?=.*\d)(?=.*)(?!.*(.)\1{4})\S{8,}", ErrorMessage = "Formato de clave incorrecta")]
+       // [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
         [Required(ErrorMessage = "La clave debe ser ingresada.")]
+
         public string CLAVE { get; set; }
         [Required(ErrorMessage = "Debe ingresar un nombre válido.")]
         public string NOMBRE { get; set; }
@@ -40,8 +42,8 @@ namespace CoreCRUDwithORACLE.Models
         [RegularExpression(@"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$", ErrorMessage = "El email es incorrecto")]
         public string MAIL { get; set; }
         [StringLength(10, MinimumLength = 9, ErrorMessage = "El campo teléfono debe tener mínimo 9 dígitos")]
-        [Required(ErrorMessage = "El teléfono debe ser ingresado")]
-        [RegularExpression(@"[0-9]*", ErrorMessage = "Ingrese solo números")]
+        [Required(ErrorMessage = "El teléfono debe ser ingresado")]       
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Solo se permiten números")]
         [DisplayName("CELULAR")]
         public string TELEFONO { get; set; }
     }
