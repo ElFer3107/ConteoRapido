@@ -1,6 +1,5 @@
 ﻿using CoreCRUDwithORACLE.Interfaces;
 using CoreCRUDwithORACLE.Models;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -14,14 +13,14 @@ namespace CoreCRUDwithORACLE.Controllers
     {
         IServicioActa servicioActa;
         private readonly IServicioUsuario servicioUsuario;
-        private readonly IDataProtector protector;
+      //  private readonly IDataProtector protector;
 
-        public ResultadosController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario,
-            IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
+        public ResultadosController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario
+            )
         {
             servicioActa = _servicioActa;
             servicioUsuario = _servicioUsuario;
-            this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
+            //this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
         public IActionResult ByPass(string textoBuscar)
@@ -44,7 +43,7 @@ namespace CoreCRUDwithORACLE.Controllers
                 return View(resultadosVotos);
             }
             int codJunta = Convert.ToInt32(textoBuscar);
-            resultadosVotos = servicioActa.ConsultaResultados(codJunta.ToString());
+            resultadosVotos = servicioActa.ConsultaResultados(codJunta);
 
             if (resultadosVotos == null)
             {
@@ -74,10 +73,10 @@ namespace CoreCRUDwithORACLE.Controllers
                 ModelState.AddModelError(string.Empty, "Ingrese información de Junta.");
                 return View(resultadosVotos);
             }
-            var cod_junta = protector.Protect(textoBuscar);
-            //int codJunta = Convert.ToInt32(textoBuscar);
-            string codJuta = cod_junta.ToString();
-            resultadosVotos = servicioActa.ConsultaResultados(codJuta);
+            //var cod_junta = protector.Protect(textoBuscar);
+            int codJunta = Convert.ToInt32(textoBuscar);
+            //string codJuta = cod_junta.ToString();
+            resultadosVotos = servicioActa.ConsultaResultados(codJunta);
 
             if (resultadosVotos == null)
             {
@@ -160,7 +159,7 @@ namespace CoreCRUDwithORACLE.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Existió un error al ingresar los resultados.");
             }
-            return RedirectPreserveMethod("ByPass?textoBuscar="+resultadosVotos.Acta.COD_JUNTA);
+            return RedirectPreserveMethod("ByPass?textoBuscar=" + resultadosVotos.Acta.COD_JUNTA);
         }
     }
 }

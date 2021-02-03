@@ -110,7 +110,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                 consultaUsuarios += " AND US.COD_ROL = 2 ";
                                 break;
                             case 2:
-                                consultaUsuarios += " AND US.COD_ROL in (3,5) ";
+                                consultaUsuarios += " AND US.COD_ROL in (3,5,8) ";
                                 break;
                             case 3:
                                 consultaUsuarios += " AND US.COD_ROL = 4 AND US.COD_PROVINCIA = " + codigoProvincia;

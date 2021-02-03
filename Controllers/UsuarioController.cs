@@ -264,7 +264,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
                 case 2:
                     provincias = (from Provincia in auc.PROVINCIA
-                                  where Provincia.COD_PROVINCIA > 0 && Provincia.COD_PROVINCIA < 26
+                                  where Provincia.COD_PROVINCIA >= 0 && Provincia.COD_PROVINCIA < 26
                                   orderby Provincia.NOM_PROVINCIA
                                   select new SelectListItem()
                                   {
@@ -279,7 +279,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     });
 
                     roles = (from Rol in auc.ROL
-                             where Rol.COD_ROL == 3 || Rol.COD_ROL == 5 || Rol.COD_ROL == 6 || Rol.COD_ROL == 8
+                             where Rol.COD_ROL == 3 || Rol.COD_ROL == 5 || Rol.COD_ROL == 8 
                              select new SelectListItem()
                              {
                                  Text = Rol.DES_ROL,
@@ -363,7 +363,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     break;
                 case 2:
                     provincias = (from Provincia in auc.PROVINCIA
-                                  where Provincia.COD_PROVINCIA > 0 && Provincia.COD_PROVINCIA < 26
+                                  where Provincia.COD_PROVINCIA >= 0 && Provincia.COD_PROVINCIA < 26
                                   orderby Provincia.NOM_PROVINCIA
                                   select new SelectListItem()
                                   {
@@ -378,7 +378,7 @@ namespace CoreCRUDwithORACLE.Controllers
                     });
 
                     roles = (from Rol in auc.ROL
-                             where Rol.COD_ROL == 3 || Rol.COD_ROL == 5 || Rol.COD_ROL == 6
+                             where Rol.COD_ROL == 3 || Rol.COD_ROL == 5 || Rol.COD_ROL == 8
                              select new SelectListItem()
                              {
                                  Text = Rol.DES_ROL,
@@ -453,6 +453,17 @@ namespace CoreCRUDwithORACLE.Controllers
                 PROVINCIA = usuarionNew.PROVINCIA,
                 ROL = usuarionNew.ROL
             };
+
+            if (usuario.CODIGO_PROVINCIA==0 && usuario.CODIGO_ROL == 3)
+            {
+                ModelState.AddModelError(string.Empty, "Debe seleccionar una provincia");
+                return View(usuarionNew);
+            }
+            if ((usuario.CODIGO_PROVINCIA > 0) && (usuario.CODIGO_ROL == 8|| usuario.CODIGO_ROL == 5))
+            {
+                ModelState.AddModelError(string.Empty, "El rol seleccionado es de carácter nacional, seleccione Ecuador");
+                return View(usuarionNew);
+            }
 
             int respuesta = await servicioUsuario.IngresaUsuario(usuario);
             if (respuesta > 0)

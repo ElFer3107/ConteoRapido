@@ -331,7 +331,7 @@ namespace CoreCRUDwithORACLE.Servicios
             }
         }
 
-        public ResultadosVotos ConsultaResultados(string? codigoJunta)
+        public ResultadosVotos ConsultaResultados(int? codigoJunta)
         {
             ResultadosVotos resultados = null;
             List<Resultado> resultadosVotos = null;
@@ -351,8 +351,8 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
-                        var cod_junta = protector.Unprotect(codigoJunta);
-                        int codJunta = Convert.ToInt32(cod_junta);
+                       // var cod_junta = protector.Unprotect(codigoJunta);
+                        int codJunta = Convert.ToInt32(codigoJunta);
                         cmd.CommandText = string.Format(consultaResultadosActa, codJunta);
 
                         OracleDataReader odr = cmd.ExecuteReader();
@@ -427,7 +427,6 @@ namespace CoreCRUDwithORACLE.Servicios
                         con.Dispose();
                         cmd.Dispose();
                     }
-
                 }
             }
         }

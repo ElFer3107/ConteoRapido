@@ -19,6 +19,7 @@ namespace CoreCRUDwithORACLE.Controllers
         private string mensaje = string.Empty;
 
         public ActaController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario, IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
+           // public ActaController(IServicioActa _servicioActa, IServicioUsuario _servicioUsuario)
         {
             servicioActa = _servicioActa;
             servicioUsuario = _servicioUsuario;
@@ -57,7 +58,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
             actas = actas.Select(e =>
             {
-                e.SEGURO = protector.Protect(e.COD_JUNTA.ToString());
+                e.SEGURO = protector.Protect(e.COD_JUNTA.ToString()) ;
                 return e;
             });
             if (!String.IsNullOrEmpty(textoBuscar))
@@ -150,7 +151,7 @@ namespace CoreCRUDwithORACLE.Controllers
             if (!String.IsNullOrEmpty(id))
             {
                 var cod_junta = protector.Unprotect(id.ToString());
-                ActaResponse acta = servicioActa.GetActa(Convert.ToInt32(cod_junta));
+                ActaResponse acta = servicioActa.GetActa(Convert.ToInt32(cod_junta.ToString()));
                 mensaje = string.Empty;
                 return View(acta);
             }
@@ -211,7 +212,7 @@ namespace CoreCRUDwithORACLE.Controllers
             try
             {
                 var cod_junta = protector.Unprotect(id.ToString());
-                int respuesta = servicioActa.ActualizaAsignacion(Convert.ToInt32( cod_junta));
+                int respuesta = servicioActa.ActualizaAsignacion(Convert.ToInt32(cod_junta));
                 if (respuesta > 0)
                 {
                     mensaje = "Acta Liberada";
