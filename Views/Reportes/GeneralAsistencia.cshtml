@@ -1,5 +1,160 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@*@model IEnumerable<CoreCRUDwithORACLE.ViewModels.Reportes.InformacionGeneral>*@
+@model CoreCRUDwithORACLE.Comunes.PaginatedListAsync<CoreCRUDwithORACLE.ViewModels.Reportes.GeneralAsistencia>
+
+
 @{
+    ViewData["Title"] = "GeneralProvincia";
 }
+
+<h1>Información General de Asistencia por Provincia</h1>
+
+
+<div id="wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <table>
+                        <tr>
+                            <th> <a asp-controller="Home" asp-action="Index" class="btn btn-block btn-secondary">  Ir al Inicio </a></th>
+                            <th> <a asp-controller="Account" asp-action="Logout" class="btn btn-block btn-danger">Salir</a></th>
+                        </tr>
+                    </table>
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    @if (Model != null)
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                            </div>
+                            @{
+                                var transmitidas = 0;                                
+                                var pendientes = 0;
+
+                            }
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <table id="GralProv" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @*@Html.DisplayNameFor(model => model.COD_PROVINCIA)*@
+                                                    CODIGO PROVINCIA
+                                                </th>
+                                                <th>
+                                                    @*@Html.DisplayNameFor(model => model.NOM_PROVINCIA)*@
+                                                    <a asp-action="GeneralProvincia" asp-route-sortOrder="@ViewData["ProvSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">PROVINCIA</a>
+                                                </th>
+                                                
+                                                <th>
+                                                    TRANSMITIDAS
+                                                </th>
+                                                <th>
+                                                    PENDIENTES
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.COD_PROVINCIA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.NOM_PROVINCIA)
+                                                    </td>
+                                                    
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.PENDIENTES)
+                                                    </td>
+                                                    <td>
+                                                        @Html.ActionLink("Cantón", "GeneralCanton", new { codigoProvincia = item.SEGURO }, new { @class = "btn btn-block btn-info" })
+                                                    </td>
+                                                </tr>
+
+                                                transmitidas = transmitidas + item.TRANSMITIDAS;
+                                                pendientes = pendientes + item.PENDIENTES;
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    TOTAL
+                                                </th>
+                                                <th></th>                                              
+                                                <th>@transmitidas</th>
+                                                <th>@pendientes</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    @{
+                                        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                                        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                                    }
+                                    <!--
+                                    <a asp-action="GeneralProvincia"
+                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                       class="btn btn-default @prevDisabled">
+                                        Anterior
+                                    </a>
+                                    <a asp-action="GeneralProvincia"
+                                       asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                       class="btn btn-default @nextDisabled">
+                                        Siguiente
+                                    </a>
+                                    -->
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+
+<!-- jQuery -->
+<script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables -->
+<script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<!-- AdminLTE App -->
+<script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="~/FrontEnd/dist/js/demo.js"></script>
+<!-- page script -->
+
+<script>
+    $(function () {
+        $("#GralProv").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        var table = $('#GralProv').DataTable();
+    });</script>
+

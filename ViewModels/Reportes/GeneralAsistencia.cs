@@ -11,5 +11,6 @@ namespace CoreCRUDwithORACLE.ViewModels.Reportes
         public string NOM_PROVINCIA { get; set; }
         public int TRANSMITIDAS { get; set; }
         public int PENDIENTES { get; set; }
+        public string SEGURO { get; set; }
     }
 }

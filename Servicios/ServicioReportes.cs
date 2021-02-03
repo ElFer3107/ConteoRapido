@@ -33,6 +33,12 @@ namespace CoreCRUDwithORACLE.Servicios
         private string sReporteGeneralCant = @"SELECT COD_PROVINCIA, NOM_PROVINCIA, COD_CANTON,NOM_CANTON,  SUM(JUNTAS) JUNTAS, SUM(ASIGNADAS) ASIGNADAS,SUM(DESCARGADAS) DESCARGADAS, SUM(REPORTADAS) REPORTADAS, SUM(TRANSMITIDAS) TRANSMITIDAS
                                                 FROM REPORTEGRAL";
         private string sReporteGeneralParr = @"SELECT* FROM REPORTEGRAL";
+        private string sReporteGeneralAsistecia = @"SELECT COD_PROVINCIA, NOM_PROVINCIA,
+                                                    SUM (CASE  WHEN ESTADO!='PENDIENTE'  THEN  1  ELSE   0  END) AS TRANSMITIDAS,
+                                                    SUM (CASE WHEN ESTADO='PENDIENTE'  THEN  1  ELSE   0 END) AS PENDIENTES
+                                                    FROM VIEW_ASISTENCIA
+                                                    GROUP BY  COD_PROVINCIA, NOM_PROVINCIA
+                                                    ORDER BY 2";
 
         public async Task<IEnumerable<AOperadoresProvincia>> OperadoresProvincia(int? codigoProvincia = null)
         {
@@ -692,5 +698,69 @@ namespace CoreCRUDwithORACLE.Servicios
 
             return generalesParroquia;
         }
+
+        public async Task<IEnumerable<GeneralAsistencia>> GeneralAsistencia(int? codigoProvincia = null)
+        {
+            List<GeneralAsistencia> asistenciaNac = null;
+
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    try
+                    {
+                        con.Open();
+                        cmd.Connection = con;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+
+                      //  if (codigoProvincia.HasValue)
+                        //    sReporteGeneralProv += " WHERE COD_PROVINCIA = " + codigoProvincia.ToString();
+
+                        //sReporteGeneralProv += @" GROUP BY COD_PROVINCIA, NOM_PROVINCIA
+                        //                        ORDER BY COD_PROVINCIA, NOM_PROVINCIA";
+
+                        cmd.CommandText = string.Format(sReporteGeneralAsistecia);
+
+                        OracleDataReader odr = (OracleDataReader)await cmd.ExecuteReaderAsync();
+
+                        if (odr.HasRows)
+                        {
+                            asistenciaNac = new List<GeneralAsistencia>();
+                            while (odr.Read())
+                            {
+                                GeneralAsistencia _generaAsistencia= new GeneralAsistencia
+                                //InformacionGeneral generalProvincia = new InformacionGeneral
+                                {
+                                    COD_PROVINCIA = Convert.ToInt32(odr["COD_PROVINCIA"]),
+                                    NOM_PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),                                    
+                                    TRANSMITIDAS = Convert.ToInt32(odr["TRANSMITIDAS"]),
+                                    PENDIENTES= Convert.ToInt32(odr["PENDIENTES"]),
+                                };
+                                asistenciaNac.Add(_generaAsistencia);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return asistenciaNac;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+
+                }
+            }
+
+            return asistenciaNac;
+        }
+
+
+
+
     }
 }

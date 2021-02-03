@@ -1002,5 +1002,87 @@ namespace CoreCRUDwithORACLE.Controllers
             
         }
 
+
+
+        public async Task<IActionResult> GeneralAsistencia(string sortOrder, string currentFilter,
+                                                string textoBuscar, int? pageNumber)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Redirect("Account/LogOut");
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["ProvSortParm"] = String.IsNullOrEmpty(sortOrder) ? "prov_desc" : "";
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            int number;
+
+            if (textoBuscar != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                textoBuscar = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            IEnumerable<GeneralAsistencia> generalAsistencia = null;
+            int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
+            int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
+
+            if (codigoRol <= 5 && codigoRol!=4)
+            {
+                if (codigoProvincia == 0)
+                    generalAsistencia = await servicioReportes.GeneralAsistencia();
+                else
+                    generalAsistencia = await servicioReportes.GeneralAsistencia(codigoProvincia);
+            }
+            else
+                generalAsistencia = await servicioReportes.GeneralAsistencia();
+
+            if ((generalAsistencia == null) || (generalAsistencia.Count() == 0))
+            {
+                ModelState.AddModelError(string.Empty, "No existen Registros.");
+                return View();
+            }
+
+            generalAsistencia = generalAsistencia.Select(e =>
+            {
+                e.SEGURO = protector.Protect(e.COD_PROVINCIA.ToString());
+                return e;
+            });
+
+            if (!String.IsNullOrEmpty(textoBuscar))
+            {
+                if (Int32.TryParse(textoBuscar, out number))
+                {
+                    generalAsistencia = generalAsistencia.Where(a => a.COD_PROVINCIA == number);
+                }
+                else
+                {
+                    generalAsistencia = generalAsistencia.Where(s => s.NOM_PROVINCIA.Contains(textoBuscar));
+                }
+            }
+
+            switch (sortOrder)
+            {
+                case "prov_desc":
+                    generalAsistencia = generalAsistencia.OrderByDescending(a => a.NOM_PROVINCIA);
+                    break;
+                default:
+                    generalAsistencia = generalAsistencia.OrderBy(a => a.NOM_PROVINCIA);
+                    break;
+            }
+
+            int pageSize = generalAsistencia.Count();
+
+            return View(await PaginatedListAsync<GeneralAsistencia>.CreateAsync(generalAsistencia.AsQueryable(), pageNumber ?? 1, pageSize));
+
+        }
+
+
+
+
     }
 }
