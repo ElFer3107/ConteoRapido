@@ -19,5 +19,6 @@ namespace CoreCRUDwithORACLE.Interfaces
         Task<IEnumerable<InformacionGeneral>> GeneralParroquia(int? codigoCanton = null);
 
         Task<IEnumerable<GeneralAsistencia>> GeneralAsistencia(int? codigoProvincia = null);
+        Task<IEnumerable<GeneralAsistencia>> GeneralAsistenciaDet(int? codigoProvincia = null);
     }
 }

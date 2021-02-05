@@ -18,7 +18,6 @@ namespace CoreCRUDwithORACLE.Servicios
         private Comunes.Auxiliar _helper = new Comunes.Auxiliar();
         private readonly IDataProtector protector;
         
-
         public ServicioActa(IConfiguration _configuration, IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             _conn = _configuration.GetConnectionString("OracleDBConnection");
@@ -500,6 +499,106 @@ namespace CoreCRUDwithORACLE.Servicios
                 }
             }
             return respuesta;
+        }
+
+        public ResultadosVotos ConsultaResultadosImg(int? codigoJunta)
+        {
+            ResultadosVotos resultados = null;
+            List<Resultado> resultadosVotos = null;
+            Resultado resultado = null;
+            Acta acta = null;
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    OracleTransaction transaction;
+                    con.Open();
+                    cmd.Connection = con;
+                    transaction = con.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cmd.Transaction = transaction;
+                    try
+                    {
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        // var cod_junta = protector.Unprotect(codigoJunta);
+                        int codJunta = Convert.ToInt32(codigoJunta);
+                        cmd.CommandText = string.Format(consultaResultadosActa, codJunta);
+
+                        OracleDataReader odr = cmd.ExecuteReader();
+
+                        if (odr.HasRows)
+                        {
+                            while (odr.Read())
+                            {
+                                acta = new Acta
+                                {
+                                    COD_JUNTA = Convert.ToInt32(odr["COD_JUNTA"]),
+                                    VOT_JUNTA = Convert.ToInt32(odr["VOT_JUNTA"]),
+                                    BLA_JUNTA = Convert.ToInt32(odr["BLA_JUNTA"]),
+                                    NUL_JUNTA = Convert.ToInt32(odr["NUL_JUNTA"]),
+                                    PROVINCIA = Convert.ToString(odr["NOM_PROVINCIA"]),
+                                    CANTON = Convert.ToString(odr["NOM_CANTON"]),
+                                    PARROQUIA = Convert.ToString(odr["NOM_PARROQUIA"]),
+                                    ZONA = Convert.ToString(odr["NOM_ZONA"]),
+                                    JUNTA = Convert.ToString(odr["JUNTA"]),
+                                    TOT_ELECTORES = Convert.ToInt32(odr["NUMELE_JUNTA"]),
+                                    Estado_Acta = Convert.ToInt32(odr["EST_ACTA"])
+                                };
+                            }
+                        }
+                        else
+                        {
+                            return resultados = null;
+                        }
+
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaResultadosCand, codJunta);
+
+                        odr = cmd.ExecuteReader();
+
+                        if (odr.HasRows)
+                        {
+                            resultadosVotos = new List<Resultado>();
+                            while (odr.Read())
+                            {
+                                resultado = new Resultado
+                                {
+                                    Candidato = Convert.ToString(odr["NOM_CANDIDATO"]),
+                                    Cod_Candidato = Convert.ToInt32(odr["COD_CANDIDATO"]),
+                                    Orden = Convert.ToInt32(odr["ORD_CANDIDATO"]),
+                                    VOTOS = Convert.ToInt32(odr["FIN_RESULTADO"])
+                                };
+                                resultadosVotos.Add(resultado);
+                            }
+                        }
+                        else
+                            return resultados = null;
+
+                        transaction.Commit();
+                        resultados = new ResultadosVotos()
+                        {
+                            Acta = acta,
+                            Resultados = resultadosVotos
+                        };
+
+                        return resultados;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        return resultados = null;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+                }
+            }
         }
     }
 }

@@ -83,6 +83,7 @@ namespace CoreCRUDwithORACLE.Servicios
                                                     SET    CLA_USUARIO     = '{0}',
                                                            EST_CLA_USUARIO = '{1}'
                                                     WHERE  CED_USUARIO     = '{2}'";
+        private string consultaCoordinador = @"  SELECT SUBSTR (CED_USUARIO,0,8) AS CLA_USUARIO, CED_USUARIO  FROM COORDINADOR";
 
         public ServicioUsuario(IConfiguration _configuration, ILoggerFactory logger)
         {
@@ -94,6 +95,8 @@ namespace CoreCRUDwithORACLE.Servicios
         {
 
             List<Usuario> usuarios = null;
+           
+
 
             using (OracleConnection con = new OracleConnection(_conn))
             {
@@ -292,7 +295,7 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
-                        cmd.CommandText = string.Format(consultaUserx_CedMail, iCedula.Substring(0, 9),iMail);
+                        cmd.CommandText = string.Format(consultaUserx_CedMail, iCedula,iMail);
                         cmd.BindByName = true;
 
                         OracleDataReader odr = cmd.ExecuteReader();
@@ -561,6 +564,7 @@ namespace CoreCRUDwithORACLE.Servicios
 
         public async Task<int> IngresaUsuario(UsuarioResponse usuario)
         {
+            Usuario usuariotemp = null;
             if (usuario.CLAVE == "12345678" || usuario.CLAVE == "87654321")
             {
                 _logger.LogWarning("Error: la clave no pueden ser número consecutivos" );
@@ -578,6 +582,14 @@ namespace CoreCRUDwithORACLE.Servicios
                         //cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandType = CommandType.Text;
                         //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        usuariotemp = GetUsuarioxCedulaMail(usuario.CEDULA.Substring(0,9),usuario.MAIL);
+                        if (usuariotemp != null)
+                        {
+                            usuario.LOGEO = "77";
+                            return 0;
+                        }
+
+
                         cmd.CommandText = string.Format(consultaCodUsuario);
                         OracleDataReader odr = cmd.ExecuteReader();
                         if (odr.HasRows)
@@ -628,7 +640,7 @@ namespace CoreCRUDwithORACLE.Servicios
             string clave = string.Empty;
 
             usuario = GetUsuario(usuarioNew.CEDULA);
-
+            //ActualiaClaveCoordinador("","");
         if (usuario != null)
             {
                 clave = _helper.EncodePassword(usuarioNew.CLAVE);
@@ -1159,6 +1171,64 @@ namespace CoreCRUDwithORACLE.Servicios
 
             return Candidat;
         }
+
+
+
+        public Usuario ActualiaClaveCoordinador(string iCedula, string iMail)
+        {
+            Usuario usuario = null;
+            string clave = String.Empty;
+            string cedula = String.Empty;
+            using (OracleConnection con = new OracleConnection(_conn))
+            {
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    try
+                    {
+                        con.Open();
+                        cmd.Connection = con;
+                        //cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.Text;
+                        //cmd.CommandText = "PKG_CONTEO_RAPIDO.CONSULTA_USUARIO";
+                        cmd.CommandText = string.Format(consultaCoordinador);
+                        cmd.BindByName = true;
+
+                        OracleDataReader odr = cmd.ExecuteReader();
+                        if (odr.HasRows)
+                        {
+                            usuario = new Usuario();
+                            while (odr.Read())
+                            {
+                                clave = _helper.EncodePassword(Convert.ToString(odr["CLA_USUARIO"]));
+                                cedula = Convert.ToString(odr["CED_USUARIO"]);
+                                
+                                cmd.CommandType = CommandType.Text;
+
+                                cmd.CommandText = string.Format("update usuario set cla_usuario='"+clave+"' where ced_usuario='"+cedula+"'");
+
+                                int odrupdate = cmd.ExecuteNonQuery();
+
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        //return usuario;
+                    }
+                    finally
+                    {
+                        con.Close();
+                        con.Dispose();
+                        cmd.Dispose();
+                    }
+
+                }
+            }
+
+            return usuario;
+        }
+
 
     }
 }

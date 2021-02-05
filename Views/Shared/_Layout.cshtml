@@ -87,87 +87,107 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
     with font-awesome or any other icon font library -->
-                        @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value != "5" && ViewBag.CODROL <4)
-                           // @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value < "" || ViewBag.CODROL == 6)
+                        @{
+                            var codRolSession = HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value;
+                            var cod_Rol = Convert.ToInt32(codRolSession);
+                        }
+
+                        @if (cod_Rol <= 5 && cod_Rol != 4)
+                        {
+                            <li class="nav-item">
+                                <a asp-action="index" asp-controller="Usuario" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Administrador de Usuarios
+                                    </p>
+                                </a>
+                            </li>
+                        }
+                        @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value != "1")
+                        {
+                            if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "3")
                             {
                                 <li class="nav-item">
-                                    <a asp-action="index" asp-controller="Usuario" class="nav-link">
+                                    <a asp-action="index" asp-controller="Acta" class="nav-link">
                                         <i class="nav-icon fas fa-th"></i>
                                         <p>
-                                            Administrador de Usuarios
-                                        </p>
-                                    </a>
-                                </li>
-                            }
-                            @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value != "1")
-                            {
-                                if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "3")
-                                {
-                                    <li class="nav-item">
-                                        <a asp-action="index" asp-controller="Acta" class="nav-link">
-                                            <i class="nav-icon fas fa-th"></i>
-                                            <p>
-                                                Administrador de Actas
-                                            </p>
-                                        </a>
-                                    </li>
-                                }
-                                <li class="nav-item">
-                                    <a asp-action="index" asp-controller="Reportes" class="nav-link">
-                                        <i class="nav-icon fas fa-th"></i>
-                                        <p>
-                                            Reporte Actas Asignadas
-                                        </p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-action="TransmitidasProvincia" asp-controller="Reportes" class="nav-link">
-                                        <i class="nav-icon fas fa-th"></i>
-                                        <p>
-                                            Reporte Actas Transmitidas
-                                        </p>
-                                    </a>
-                                </li>
-                            }
-                            @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "1")
-                            {
-                                <li class="nav-item">
-                                    <a asp-action="EnceraBase" asp-controller="Usuario" class="nav-link">
-                                        <i class="nav-icon fas fa-th"></i>
-                                        <p>
-                                            Encerar Base
-                                        </p>
-                                    </a>
-                                </li>
-                            }
-                            @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "8")
-                            {
-                                <li class="nav-item">
-                                    <a asp-action="ConsultaResultados" asp-controller="Resultados" class="nav-link">
-                                        <i class="nav-icon fas fa-th"></i>
-                                        <p>
-                                            Ingresar resultados
+                                            Administrador de Actas
                                         </p>
                                     </a>
                                 </li>
                             }
                             <li class="nav-item">
-                                <a asp-action="GeneralProvincia" asp-controller="Reportes" class="nav-link">
+                                <a asp-action="index" asp-controller="Reportes" class="nav-link">
                                     <i class="nav-icon fas fa-th"></i>
                                     <p>
-                                        Reportes Generales
+                                        Reporte Actas Asignadas
                                     </p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a asp-controller="Account" asp-action="Logout" class="nav-link">
+                                <a asp-action="TransmitidasProvincia" asp-controller="Reportes" class="nav-link">
                                     <i class="nav-icon fas fa-th"></i>
                                     <p>
-                                        Cerrar sesión
+                                        Reporte Actas Transmitidas
                                     </p>
                                 </a>
                             </li>
-                        </ul>
+                            <li class="nav-item">
+                                <a asp-action="GeneralAsistencia" asp-controller="Reportes" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Reporte de asistencia
+                                    </p>
+                                </a>
+                            </li>
+                        }
+                        @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "1")
+                        {
+                            <li class="nav-item">
+                                <a asp-action="EnceraBase" asp-controller="Usuario" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Encerar Base
+                                    </p>
+                                </a>
+                            </li>
+                        }
+                        @if (@HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "CodRol")?.Value == "8")
+                        {
+                            <li class="nav-item">
+                                <a asp-action="ConsultaResultados" asp-controller="Resultados" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Ingresar resultados
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="MuestreoNacional" asp-controller="Reportes" class="nav-link">
+                                    <i class="nav-icon fas fa-th"></i>
+                                    <p>
+                                        Muestro de imágenes
+                                    </p>
+                                </a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a asp-action="GeneralProvincia" asp-controller="Reportes" class="nav-link">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    Reportes Generales
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Account" asp-action="Logout" class="nav-link">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    Cerrar sesión
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
             </div>

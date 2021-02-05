@@ -1,0 +1,207 @@
+﻿@model CoreCRUDwithORACLE.Models.ResultadosVotos
+@{
+    ViewData["Title"] = "ConsultaResultados";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 3 | DataTables</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/FrontEnd/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/FrontEnd/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/FrontEnd/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/FrontEnd/dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body>
+
+
+
+
+    @if (Model != null)
+    {
+        @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="col-md-6">
+                @using (Html.BeginForm("ConsultaResultados", "Resultados", FormMethod.Post, new { @id = "Form1" }))
+                {
+                    @*<form asp-action="ConsultaResultados" id="frmSaveVotos" name="frmSaveVotos"  method="post">*@
+                <table id="ActaCabecera" class="table table-bordered table-striped">
+                                                
+                    <thead>
+                        <tr>
+                            <th>
+                                PROVINCIA
+                            </th>
+
+                            <th>
+                                CANTON
+                            </th>
+
+                            <th>
+                                PARROQUIA
+                            </th>
+                            <th>
+                                ZONA
+                            </th>
+                            <th>
+                                JUNTA
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*@foreach (var item in Model.Acta)
+            {*@
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.PROVINCIA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.CANTON)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.PARROQUIA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.ZONA)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => Model.Acta.JUNTA)
+                            </td>
+                        </tr>
+                        @*}*@
+                    </tbody>
+                </table>
+                   
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">Información Votos</h3>
+                        </div>
+                        <div class="card-body">
+
+
+
+                            <table id="Acta" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            OR.
+                                        </th>
+                                        <th>
+                                            CANDIDATO
+                                        </th>
+                                        <th>
+                                            VOTOS
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td>TOTAL SUFRAGANTES</td>
+                                        <td>@Model.Acta.VOT_JUNTA</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>BLANCOS</td>
+                                        <td>@Model.Acta.BLA_JUNTA</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>NULOS</td>
+                                        <td>@Model.Acta.NUL_JUNTA</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>---VOTOS---</td>
+                                        <td></td>
+
+                                    </tr>
+                                    @foreach (var item in Model.Resultados)
+                                    {
+                                        <tr>
+                                            <td>@item.Orden</td>
+                                            <td>@item.Candidato</td>
+                                            <td>@item.VOTOS</td>
+
+                                        </tr>
+                                    }
+
+
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+
+                    @*</form>*@
+                }
+            </div>
+        </div>
+    }
+    <div>
+        <a asp-controller="Home" asp-action="Index">Regresar al inicio</a>
+    </div>
+
+
+    <!-- jQuery -->
+    <script src="~/FrontEnd/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/FrontEnd/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables -->
+    <script src="~/FrontEnd/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/FrontEnd/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/FrontEnd/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/FrontEnd/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+    <!-- AdminLTE App -->
+    <script src="~/FrontEnd/dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/FrontEnd/dist/js/demo.js"></script>
+    <!-- page script -->
+
+    <script>
+        $(function () {
+            $("#Acta").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "searching": false,
+                "ordering": false,
+                "info": false,
+                "pageLength":11
+            });
+
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $.noConflict();
+            var table = $('#Acta').DataTable();
+        });</script>
+
+
+</body>
+</html>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

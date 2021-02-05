@@ -6,11 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using CoreCRUDwithORACLE.Comunes;
 using System.Threading.Tasks;
+using CoreCRUDwithORACLE.ViewModels.Reportes;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace CoreCRUDwithORACLE.Controllers
 {
     public class ResultadosController : Controller
     {
+        private readonly IServicioReportes servicioReportes;
+        private readonly ApplicationUser applicationUser;
+        private readonly IDataProtector protector;
         IServicioActa servicioActa;
         private readonly IServicioUsuario servicioUsuario;
       //  private readonly IDataProtector protector;
@@ -161,5 +166,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
             return RedirectPreserveMethod("ByPass?textoBuscar=" + resultadosVotos.Acta.COD_JUNTA);
         }
+
+        
     }
 }

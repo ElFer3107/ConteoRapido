@@ -6,7 +6,7 @@
     ViewData["Title"] = "GeneralProvincia";
 }
 
-<h1>Información General de Asistencia por Provincia</h1>
+<h1>Información en Detalle de Asistencia de la Provincia de @ViewBag.Provincia</h1>
 
 
 <div id="wrapper">
@@ -16,6 +16,7 @@
                 <div class="col-12">
                     <table>
                         <tr>
+                            <th> <a asp-controller="Reportes" asp-action="GeneralAsistencia" class="btn btn-block btn-info"> Regresar </a></th>
                             <th> <a asp-controller="Home" asp-action="Index" class="btn btn-block btn-secondary">  Ir al Inicio </a></th>
                             <th> <a asp-controller="Account" asp-action="Logout" class="btn btn-block btn-danger">Salir</a></th>
                         </tr>
@@ -28,32 +29,35 @@
                                 <div asp-validation-summary="All" class="text-danger"></div>
 
                             </div>
-                            @{
-                                var transmitidas = 0;
-                                var pendientes = 0;
-
-                            }
                             <div class="card-body">
                                 <div class="form-group">
                                     <table id="GralProv" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
                                                 <th>
-                                                    @*@Html.DisplayNameFor(model => model.COD_PROVINCIA)*@
-                                                    CODIGO PROVINCIA
+                                                    CÓDIGO PROVINCIA
                                                 </th>
                                                 <th>
-                                                    @*@Html.DisplayNameFor(model => model.NOM_PROVINCIA)*@
-                                                    <a asp-action="GeneralProvincia" asp-route-sortOrder="@ViewData["ProvSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">PROVINCIA</a>
-                                                </th>
-
-                                                <th>
-                                                    TRANSMITIDAS
+                                                    <a asp-action="GeneralAsistenciaPorProvincia" asp-route-sortOrder="@ViewData["ProvSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">PROVINCIA</a>
                                                 </th>
                                                 <th>
-                                                    PENDIENTES
+                                                    CANTÓN
                                                 </th>
-                                                <th></th>
+                                                <th>
+                                                    PARROQUIA
+                                                </th>
+                                                <th>
+                                                    ZONA
+                                                </th>
+                                                <th>
+                                                    JUNTA
+                                                </th>
+                                                <th>
+                                                    OPERADOR
+                                                </th>
+                                                <th>
+                                                    ESTADO
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -66,33 +70,27 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.NOM_PROVINCIA)
                                                     </td>
-
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.TRANSMITIDAS)
+                                                        @Html.DisplayFor(modelItem => item.NOM_CANTON)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.PENDIENTES)
+                                                        @Html.DisplayFor(modelItem => item.NOM_PARROQUIA)
                                                     </td>
                                                     <td>
-                                                        @Html.ActionLink("Ver Detalle", "GeneralAsistenciaPorProvincia", new { codigoProvincia = item.SEGURO }, new { @class = "btn btn-block btn-info" })
+                                                        @Html.DisplayFor(modelItem => item.NOM_ZONA)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.JUNTA)@Html.DisplayFor(modelItem => item.SEXO)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.OPERADOR)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ESTADO)
                                                     </td>
                                                 </tr>
-
-                                                transmitidas = transmitidas + item.TRANSMITIDAS;
-                                                pendientes = pendientes + item.PENDIENTES;
                                             }
                                         </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th>
-                                                    TOTAL
-                                                </th>
-                                                <th></th>
-                                                <th>@transmitidas</th>
-                                                <th>@pendientes</th>
-                                                <th></th>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                     @{
                                         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";

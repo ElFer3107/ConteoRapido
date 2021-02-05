@@ -18,6 +18,8 @@ namespace CoreCRUDwithORACLE.Controllers
         private readonly IServicioReportes servicioReportes;
         private readonly ApplicationUser applicationUser;
         private readonly IDataProtector protector;
+        IServicioActa servicioActa;
+        
         //private static Auxiliar _helper = new Auxiliar();
 
         //// GET: ReportesController
@@ -96,11 +98,12 @@ namespace CoreCRUDwithORACLE.Controllers
         //}
         //[ValidateAntiForgeryToken]
         //public async Task
-        public ReportesController(IServicioReportes _servicioReportes, ApplicationUser _applicationUser,
+        public ReportesController(IServicioActa _servicioActa,IServicioReportes _servicioReportes, ApplicationUser _applicationUser,
                             IDataProtectionProvider dataProtectionProvider, Helper dataHelper)
         {
             servicioReportes = _servicioReportes;
             applicationUser = _applicationUser;
+            servicioActa = _servicioActa;
             this.protector = dataProtectionProvider.CreateProtector(dataHelper.CodigoEnrutar);
         }
 
@@ -1083,6 +1086,263 @@ namespace CoreCRUDwithORACLE.Controllers
 
 
 
+        [Route("Reportes/GeneralAsistenciaPorProvincia/{codigoProvincia}")]
+        public async Task<IActionResult> GeneralAsistenciaPorProvincia(string codigoProvincia, string sortOrder, string currentFilter,
+                                          string textoBuscar, int? pageNumber)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Redirect("Account/LogOut");
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["ProvSortParm"] = String.IsNullOrEmpty(sortOrder) ? "prov_desc" : "";
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            int number;
+
+            if (textoBuscar != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                textoBuscar = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            IEnumerable<GeneralAsistencia> generalAsistencia = null;
+            int codigoProvinciaDet = Convert.ToInt32(protector.Unprotect(codigoProvincia));
+            generalAsistencia = await servicioReportes.GeneralAsistenciaDet(codigoProvinciaDet);
+            if ((generalAsistencia == null) || (generalAsistencia.Count() == 0))
+            {
+                ModelState.AddModelError(string.Empty, "No existen Registros.");
+                return View();
+            }
+
+            generalAsistencia = generalAsistencia.Select(e =>
+            {
+                ViewBag.Provincia = e.NOM_PROVINCIA;
+                e.SEGURO = protector.Protect(e.COD_PROVINCIA.ToString());
+                return e;
+            });
+
+            if (!String.IsNullOrEmpty(textoBuscar))
+            {
+                if (Int32.TryParse(textoBuscar, out number))
+                {
+                    generalAsistencia = generalAsistencia.Where(a => a.COD_PROVINCIA == number);
+                }
+                else
+                {
+                    generalAsistencia = generalAsistencia.Where(s => s.NOM_PROVINCIA.Contains(textoBuscar));
+                }
+            }
+
+            switch (sortOrder)
+            {
+                case "prov_desc":
+                    generalAsistencia = generalAsistencia.OrderByDescending(a => a.NOM_PROVINCIA);
+                    break;
+                default:
+                    generalAsistencia = generalAsistencia.OrderBy(a => a.NOM_PROVINCIA);
+                    break;
+            }
+
+            int pageSize = generalAsistencia.Count();
+
+            return View(await PaginatedListAsync<GeneralAsistencia>.CreateAsync(generalAsistencia.AsQueryable(), pageNumber ?? 1, pageSize));
+        }
+
+
+
+        [Route("Reportes/MuestreoNacional")]
+        public async Task<IActionResult> MuestreoNacional(string sortOrder, string currentFilter,
+                                                string textoBuscar, int? pageNumber)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Redirect("Account/LogOut");
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["ProvSortParm"] = String.IsNullOrEmpty(sortOrder) ? "prov_desc" : "";
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            int number;
+
+            if (textoBuscar != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                textoBuscar = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            int codigoProvincia = Convert.ToInt32(HttpContext.Session.GetString("cod_provincia"));
+            int codigoRol = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
+
+            IEnumerable<ATransmitidasProvincia> transmitidasProvincias = null;
+
+            if (codigoRol != 5)
+            {
+                if (codigoProvincia == 0)
+                    transmitidasProvincias = await servicioReportes.TransmitidasProvincia();
+                else
+                    transmitidasProvincias = await servicioReportes.TransmitidasProvincia(codigoProvincia);
+            }
+            else
+                transmitidasProvincias = await servicioReportes.TransmitidasProvincia();
+
+
+            if ((transmitidasProvincias == null) || (transmitidasProvincias.Count() == 0))
+            {
+                ModelState.AddModelError(string.Empty, "No existen Registros.");
+                return View();
+            }
+
+            transmitidasProvincias = transmitidasProvincias.Select(e =>
+            {
+                e.SEGUROCOD = protector.Protect(e.CODIGO.ToString());
+                return e;
+            });
+
+            if (!String.IsNullOrEmpty(textoBuscar))
+            {
+                if (Int32.TryParse(textoBuscar, out number))
+                {
+                    transmitidasProvincias = transmitidasProvincias.Where(a => a.CODIGO == number);
+                }
+                else
+                {
+                    transmitidasProvincias = transmitidasProvincias.Where(s => s.PROVINCIA.Contains(textoBuscar));
+                }
+            }
+
+            switch (sortOrder)
+            {
+                case "prov_desc":
+                    transmitidasProvincias = transmitidasProvincias.OrderByDescending(a => a.PROVINCIA);
+                    break;
+                default:
+                    transmitidasProvincias = transmitidasProvincias.OrderBy(a => a.PROVINCIA);
+                    break;
+            }
+
+            int pageSize = transmitidasProvincias.Count();
+
+            return View(await PaginatedListAsync<ATransmitidasProvincia>.CreateAsync(transmitidasProvincias.AsQueryable(), pageNumber ?? 1, pageSize));
+
+        }
+       
+        
+        [Route("Reportes/DetalleMuestreo/{codigoProvincia}")]
+        public async Task<IActionResult> DetalleMuestreo(string codigoProvincia, string sortOrder, string currentFilter,
+                                        string textoBuscar, int? pageNumber)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Redirect("Account/LogOut");
+
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["ProvSortParm"] = String.IsNullOrEmpty(sortOrder) ? "prov_desc" : "";
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            int number;
+
+            if (textoBuscar != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                textoBuscar = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = textoBuscar;
+
+            IEnumerable<GeneralAsistencia> generalAsistencia = null;
+            int codigoProvinciaDet = Convert.ToInt32(protector.Unprotect(codigoProvincia));
+            generalAsistencia = await servicioReportes.GeneralAsistenciaDet(codigoProvinciaDet);
+            if ((generalAsistencia == null) || (generalAsistencia.Count() == 0))
+            {
+                ModelState.AddModelError(string.Empty, "No existen Registros.");
+                return View();
+            }
+
+            generalAsistencia = generalAsistencia.Select(e =>
+            {
+                ViewBag.Provincia = e.NOM_PROVINCIA;
+                
+                e.SEGURO = protector.Protect(e.COD_JUNTA.ToString());
+                return e;
+            });
+
+            if (!String.IsNullOrEmpty(textoBuscar))
+            {
+                if (Int32.TryParse(textoBuscar, out number))
+                {
+                    generalAsistencia = generalAsistencia.Where(a => a.COD_PROVINCIA == number);
+                }
+                else
+                {
+                    generalAsistencia = generalAsistencia.Where(s => s.NOM_PROVINCIA.Contains(textoBuscar));
+                }
+            }
+
+            switch (sortOrder)
+            {
+                case "prov_desc":
+                    generalAsistencia = generalAsistencia.OrderByDescending(a => a.NOM_PROVINCIA);
+                    break;
+                default:
+                    generalAsistencia = generalAsistencia.OrderBy(a => a.NOM_PROVINCIA);
+                    break;
+            }
+
+            int pageSize = generalAsistencia.Count();
+
+            return View(await PaginatedListAsync<GeneralAsistencia>.CreateAsync(generalAsistencia.AsQueryable(), pageNumber ?? 1, pageSize));
+        }
+        public IActionResult ActaMuestreo(string SEGURO)
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Redirect("Account/LogOut");
+
+            ResultadosVotos resultadosVotos = null;
+            //ResultadosVotos preData = null;
+
+            var cod_junta = protector.Unprotect(SEGURO);
+            int codJunta = Convert.ToInt32(cod_junta);
+            resultadosVotos = servicioActa.ConsultaResultados(codJunta);
+
+
+            if (resultadosVotos == null)
+            {
+                ModelState.AddModelError(string.Empty, "No existe información.");
+                return View();
+            }
+            /*resultadosVotos.Acta = preData.Acta;
+            //aumenta orden
+            resultadosVotos._Orden.Add(0);
+            resultadosVotos._Orden.Add(0);
+            resultadosVotos._Orden.Add(0);
+            //aumentea nmbre
+            resultadosVotos._Candidato.Add("Total Sufragantes");
+            resultadosVotos._Candidato.Add("Total Blancos");
+            resultadosVotos._Candidato.Add("Total Nulos");
+            //votos
+            resultadosVotos._Votos.Add(preData.Acta.TOT_ELECTORES);
+            resultadosVotos._Votos.Add(preData.Acta.BLA_JUNTA);
+            resultadosVotos._Votos.Add(preData.Acta.TOT_ELECTORES");*/
+
+
+            string codCandidatos = "";
+            foreach (var item in resultadosVotos.Resultados)
+                codCandidatos += item.Cod_Candidato + "|";
+            ViewBag.CodCandidatos = codCandidatos.TrimEnd('|');
+            ViewBag.Success = resultadosVotos.Acta.VOT_JUNTA > 0 ? "2" : "";
+            return PartialView(resultadosVotos);
+        }
 
     }
 }

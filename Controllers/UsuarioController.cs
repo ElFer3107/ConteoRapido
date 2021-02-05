@@ -50,6 +50,7 @@ namespace CoreCRUDwithORACLE.Controllers
 
             IEnumerable<Usuario> usuarios = servicioUsuario.GetUsuarios(Convert.ToInt32(HttpContext.Session.GetString("cod_rol")),
                                                                     Convert.ToInt32(HttpContext.Session.GetString("cod_provincia")));
+            ViewBag.CODROL = Convert.ToInt32(HttpContext.Session.GetString("cod_rol"));
             if (usuarios == null)
             {
                 ModelState.AddModelError(string.Empty, "No existen usuarios");
@@ -57,7 +58,7 @@ namespace CoreCRUDwithORACLE.Controllers
             }
             if (!string.IsNullOrEmpty(mensaje))
                 ViewBag.Message = mensaje;
-
+            
             usuarios = usuarios.Select(e =>
             {
                 e.SEGURO = protector.Protect(e.CEDULA);
@@ -426,11 +427,10 @@ namespace CoreCRUDwithORACLE.Controllers
             }
 
 
-            Usuario validacionUsuario = servicioUsuario.GetUsuarioxCedulaMail(usuarionNew.CEDULAC, usuarionNew.MAIL);
+            Usuario validacionUsuario = servicioUsuario.GetUsuarioxCedulaMail(usuarionNew.CEDULAC.Substring(0,9), usuarionNew.MAIL);
 
             // validacionUsuario = servicioUsuario.GetUsuario(usuarionNew.CEDULAC);
-
-            
+   
 
             if (validacionUsuario != null)
             {

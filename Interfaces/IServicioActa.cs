@@ -12,5 +12,6 @@ namespace CoreCRUDwithORACLE.Interfaces
         int ActualizaAsignacion(int codigoJunta);
         ResultadosVotos ConsultaResultados(int? codigoJunta);
         Respuesta ActualizarVotosActa(ResultadosVotos resultados);
+        ResultadosVotos ConsultaResultadosImg(int? codigoJunta);
     }
 }
